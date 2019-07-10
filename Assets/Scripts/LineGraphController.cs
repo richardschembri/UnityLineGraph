@@ -12,12 +12,13 @@ public class LineGraphController : MonoBehaviour
     [SerializeField]
     private Font font;
 
+
     // グラフを表示する範囲
     private RectTransform viewport;
     // グラフの要素を配置するContent
     // グラフの要素はグラフの点、ライン
     private RectTransform content;
-
+    public RectTransform markerContent;
     // 軸のGameObject
     private GameObject xAxis;
     private GameObject yAxis;
@@ -38,6 +39,8 @@ public class LineGraphController : MonoBehaviour
         public Color connectionColor;
         public bool autoScroll;
 
+        public float seperatorThickness;
+
         public static LineGraphSettings Default
         {
             get
@@ -50,7 +53,8 @@ public class LineGraphController : MonoBehaviour
                     valueSpan = 1,
                     dotColor = Color.white,
                     connectionColor = Color.white,
-                    autoScroll = true
+                    autoScroll = true,
+                    seperatorThickness = 2f,
                 };
             }
         }
@@ -68,6 +72,7 @@ public class LineGraphController : MonoBehaviour
     {
         viewport = this.transform.Find("Viewport") as RectTransform;
         content = viewport.Find("Content") as RectTransform;
+        //markerContent = this.transform.Find("YMarkersContent") as RectTransform;
         xAxis = this.transform.Find("X Axis").gameObject;
         yAxis = this.transform.Find("Y Axis").gameObject;
         xUnitLabel = this.transform.Find("X Unit Label").gameObject;
@@ -158,7 +163,7 @@ public class LineGraphController : MonoBehaviour
     /// <param name="autoScroll">自動的にスクロールするか</param>
     public void ChangeParam(float xSize, float ySize, int yAxisSeparatorSpan, int valueSpan, bool autoScroll)
     {
-        ChangeParam(new LineGraphSettings()
+        ChangeSettings(new LineGraphSettings()
         {
             xSize = xSize,
             ySize = ySize,
@@ -172,7 +177,7 @@ public class LineGraphController : MonoBehaviour
     /// LineGraphParameterでパラメータを変更する
     /// </summary>
     /// <param name="param">Parameter.</param>
-    public void ChangeParam(LineGraphSettings param)
+    public void ChangeSettings(LineGraphSettings param)
     {
         this.settings = param;
 
@@ -219,8 +224,8 @@ public class LineGraphController : MonoBehaviour
         Vector2 leftTop =
             new Vector2(0, rectTransform.sizeDelta.y) + yPadding;
 
-        ((RectTransform)xUnitLabel.transform).localPosition = rightBottom;
-        ((RectTransform)yUnitLabel.transform).localPosition = leftTop;
+        //((RectTransform)xUnitLabel.transform).localPosition = rightBottom;
+        //((RectTransform)yUnitLabel.transform).localPosition = leftTop;
     }
 
     /// <summary>
@@ -308,9 +313,16 @@ public class LineGraphController : MonoBehaviour
     {
         Vector2 buffer = new Vector2(10, 10);
         float width = (valueList.Count / settings.valueSpan + 1) * settings.xSize;
-        float height = GetMaxY() * settings.ySize;
+        //float height = ((GetMaxY() + (settings.yAxisSeparatorSpan * 1.75f)) * settings.ySize) + settings.seperatorThickness;
+        int sepCount = Mathf.CeilToInt(GetMaxY() / settings.yAxisSeparatorSpan) + 1;
+        Debug.Log(sepCount);
+        float height = (settings.yAxisSeparatorSpan * sepCount * settings.ySize)
+                        - ((settings.yAxisSeparatorSpan / 4) * settings.ySize)
+                        + settings.seperatorThickness;
 
         content.sizeDelta = new Vector2(width, height) + buffer;
+        markerContent.sizeDelta = new Vector2(markerContent.sizeDelta.x, content.sizeDelta.y);
+
     }
 
     /// <summary>
@@ -325,7 +337,7 @@ public class LineGraphController : MonoBehaviour
 
         if(valueList.Count == 0)
         {
-            return 0;
+            return settings.yAxisSeparatorSpan;//0;
         }
 
         for(int i = 0;i < valueList.Count; i += settings.valueSpan)
@@ -381,9 +393,34 @@ public class LineGraphController : MonoBehaviour
         rectTransform.anchorMax = Vector2.zero;
         rectTransform.localScale = Vector2.one;
         float width = viewport.rect.width;
-        rectTransform.sizeDelta = new Vector2(width, 2);
+        rectTransform.sizeDelta = new Vector2(width, settings.seperatorThickness);
         Vector2 origin =
             ((RectTransform)xAxis.transform).anchoredPosition;
+        rectTransform.anchoredPosition = (origin +
+                new Vector2(width / 2.0f, y * settings.ySize));
+        rectTransform.SetSiblingIndex((int)ZOrder.AXIS_SEPARATOR);
+    }
+
+    private void CreateYAxisSeparator2(float y)
+    {
+        GameObject separator =
+            new GameObject("ySeparator2(" + y + ")", typeof(Image));
+        Image image = separator.GetComponent<Image>();
+        image.color = new Color(0, 0, 0, 0.5f);
+        RectTransform rectTransform =
+            separator.GetComponent<RectTransform>();
+        rectTransform.SetParent(markerContent);
+        rectTransform.anchorMin = Vector2.zero;
+        rectTransform.anchorMax = Vector2.zero;
+        rectTransform.localScale = Vector2.one;
+        float width = markerContent.rect.width;
+        rectTransform.sizeDelta = new Vector2(width, settings.seperatorThickness);
+        Vector2 origin =
+            ((RectTransform)xAxis.transform).anchoredPosition;
+        /*
+        rectTransform.anchoredPosition = 
+                new Vector2(50f, (y * settings.ySize) + origin.y);
+        */
         rectTransform.anchoredPosition = (origin +
                 new Vector2(width / 2.0f, y * settings.ySize));
         rectTransform.SetSiblingIndex((int)ZOrder.AXIS_SEPARATOR);
@@ -398,12 +435,15 @@ public class LineGraphController : MonoBehaviour
         float height = yAxisRect.sizeDelta.x;
         // スクロールしていない時に表示できるY軸方向の最大値
         float maxValueNotScroll = (height / settings.ySize);
+
         float maxValue = GetMaxY();
-        int separatorMax = Mathf.CeilToInt(Mathf.Max(maxValue, maxValueNotScroll));
+        int separatorMax = (int)Mathf.Max(maxValue, maxValueNotScroll) + (int)settings.yAxisSeparatorSpan;
+
 
         for(float y = 0; y <= separatorMax; y += settings.yAxisSeparatorSpan)
         {
             string separatorName = "ySeparator(" + y + ")";
+            string separatorName2 = "ySeparator2(" + y + ")";
 
             // 存在したら追加しない
             if (this.transform.Find(separatorName) != null)
@@ -413,6 +453,11 @@ public class LineGraphController : MonoBehaviour
 
             CreateYAxisSeparator(y);
             CreateYLabel(y);
+
+            if (markerContent.Find(separatorName2) == null)
+            {
+                CreateYAxisSeparator2(y);
+            }
         }
     }
 
@@ -452,6 +497,7 @@ public class LineGraphController : MonoBehaviour
         RectTransform yAxisRect = yAxis.GetComponent<RectTransform>();
         Vector2 origin = xAxisRect.anchoredPosition;
         Vector2 contentPosition = content.anchoredPosition;
+        markerContent.anchoredPosition = new Vector2(markerContent.anchoredPosition.x, content.anchoredPosition.y + settings.seperatorThickness);
         float xLimit = origin.x + xAxisRect.sizeDelta.x;
         float yLimit = origin.y + yAxisRect.sizeDelta.x;
 
@@ -592,5 +638,6 @@ public class LineGraphController : MonoBehaviour
         }
 
         content.localPosition = contentPosition;
+        markerContent.anchoredPosition = new Vector2(markerContent.anchoredPosition.x, content.anchoredPosition.y + settings.seperatorThickness);
     }
 }

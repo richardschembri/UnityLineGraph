@@ -14,7 +14,7 @@ public class Sample : MonoBehaviour
 
         settings = LineGraphController.LineGraphSettings.Default;
 
-        lineGraph.ChangeParam(settings);
+        lineGraph.ChangeSettings(settings);
 
         valueList = new List<float>()
         {
@@ -43,22 +43,22 @@ public class Sample : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Z))
         {
             settings.xSize = 10;
-            lineGraph.ChangeParam(settings);
+            lineGraph.ChangeSettings(settings);
         }
         if (Input.GetKeyDown(KeyCode.X))
         {
             settings.ySize = 1;
-            lineGraph.ChangeParam(settings);
+            lineGraph.ChangeSettings(settings);
         }
         if (Input.GetKeyDown(KeyCode.C))
         {
             settings.yAxisSeparatorSpan = 50;
-            lineGraph.ChangeParam(settings);
+            lineGraph.ChangeSettings(settings);
         }
         if (Input.GetKeyDown(KeyCode.V))
         {
             settings.valueSpan = 5;
-            lineGraph.ChangeParam(settings);
+            lineGraph.ChangeSettings(settings);
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
@@ -66,12 +66,12 @@ public class Sample : MonoBehaviour
             settings.dotColor = blue;
             blue.a = 0.5f;
             settings.connectionColor = blue;
-            lineGraph.ChangeParam(settings);
+            lineGraph.ChangeSettings(settings);
         }
         if (Input.GetKeyDown(KeyCode.A))
         {
             settings = LineGraphController.LineGraphSettings.Default;
-            lineGraph.ChangeParam(settings);
+            lineGraph.ChangeSettings(settings);
         }
     }
 }
