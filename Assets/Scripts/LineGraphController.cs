@@ -24,25 +24,25 @@ public class LineGraphController : MonoBehaviour
     private GameObject xUnitLabel;
     private GameObject yUnitLabel;
 
-    private LineGraphParameter parameter;
+    private LineGraphSettings settings;
     private GameObject previousDot;
 
-    private List<KeyValuePair<string, int>> valueList;
+    private List<KeyValuePair<string, float>> valueList;
 
-    public struct LineGraphParameter{
+    public struct LineGraphSettings{
         public float xSize;
         public float ySize;
-        public int yAxisSeparatorSpan;
+        public float yAxisSeparatorSpan;
         public int valueSpan;
         public Color dotColor;
         public Color connectionColor;
         public bool autoScroll;
 
-        public static LineGraphParameter Default
+        public static LineGraphSettings Default
         {
             get
             {
-                return new LineGraphParameter()
+                return new LineGraphSettings()
                 {
                     xSize = 50,
                     ySize = 5,
@@ -72,8 +72,8 @@ public class LineGraphController : MonoBehaviour
         yAxis = this.transform.Find("Y Axis").gameObject;
         xUnitLabel = this.transform.Find("X Unit Label").gameObject;
         yUnitLabel = this.transform.Find("Y Unit Label").gameObject;
-        valueList = new List<KeyValuePair<string, int>>();
-        parameter = LineGraphParameter.Default;
+        valueList = new List<KeyValuePair<string, float>>();
+        settings = LineGraphSettings.Default;
     }
 
     private void Start()
@@ -88,12 +88,12 @@ public class LineGraphController : MonoBehaviour
     /// </summary>
     /// <param name="label">ラベルの文字列</param>
     /// <param name="value">値</param>
-    public void AddValue(string label, int value)
+    public void AddValue(string label, float value)
     {
-        valueList.Add(new KeyValuePair<string, int>(label, value));
+        valueList.Add(new KeyValuePair<string, float>(label, value));
 
         // 点を追加する
-        if (parameter.valueSpan == 1 || valueList.Count % parameter.valueSpan == 1)
+        if (settings.valueSpan == 1 || valueList.Count % settings.valueSpan == 1)
         {
             int index = valueList.Count - 1;
             GameObject dot = CreateNewDot(index, value);
@@ -121,7 +121,7 @@ public class LineGraphController : MonoBehaviour
             CreateYAxisSeparatorFitGraph();
             FixLabelAndAxisSeparatorPosition();
 
-            if (parameter.autoScroll)
+            if (settings.autoScroll)
             {
                 RectTransform rect = dot.GetComponent<RectTransform>();
 
@@ -158,7 +158,7 @@ public class LineGraphController : MonoBehaviour
     /// <param name="autoScroll">自動的にスクロールするか</param>
     public void ChangeParam(float xSize, float ySize, int yAxisSeparatorSpan, int valueSpan, bool autoScroll)
     {
-        ChangeParam(new LineGraphParameter()
+        ChangeParam(new LineGraphSettings()
         {
             xSize = xSize,
             ySize = ySize,
@@ -172,16 +172,16 @@ public class LineGraphController : MonoBehaviour
     /// LineGraphParameterでパラメータを変更する
     /// </summary>
     /// <param name="param">Parameter.</param>
-    public void ChangeParam(LineGraphParameter param)
+    public void ChangeParam(LineGraphSettings param)
     {
-        this.parameter = param;
+        this.settings = param;
 
-        RefleshGraph();
+        RefreshGraph();
     }
 
-    public LineGraphParameter GetParameter()
+    public LineGraphSettings GetParameter()
     {
-        return parameter;
+        return settings;
     }
 
     /// <summary>
@@ -229,13 +229,13 @@ public class LineGraphController : MonoBehaviour
     /// <returns>The new dot.</returns>
     /// <param name="index">X軸方向で何個目か</param>
     /// <param name="value">Y軸方向の値</param>
-    private GameObject CreateNewDot(int index, int value)
+    private GameObject CreateNewDot(int index, float value)
     {
         GameObject dot = new GameObject("dot", typeof(Image));
         Image image = dot.GetComponent<Image>();
         image.useSpriteMesh = true;
         image.sprite = dotSprite;
-        image.color = parameter.dotColor;
+        image.color = settings.dotColor;
         RectTransform rectTransform = dot.GetComponent<RectTransform>();
         rectTransform.SetParent(content);
         rectTransform.anchorMin = Vector2.zero;
@@ -243,8 +243,8 @@ public class LineGraphController : MonoBehaviour
         rectTransform.localScale = Vector2.one;
         rectTransform.sizeDelta = new Vector2(5, 5);
         rectTransform.anchoredPosition =
-            new Vector2((index / parameter.valueSpan + 1) * parameter.xSize,
-                    value * parameter.ySize);
+            new Vector2((index / settings.valueSpan + 1) * settings.xSize,
+                    value * settings.ySize);
         rectTransform.SetSiblingIndex((int)ZOrder.DOT);
 
         return dot;
@@ -258,7 +258,7 @@ public class LineGraphController : MonoBehaviour
     private void CreateConnection(Vector2 pos1, Vector2 pos2)
     {
         GameObject connection = new GameObject("connection", typeof(Image));
-        connection.GetComponent<Image>().color = parameter.connectionColor;
+        connection.GetComponent<Image>().color = settings.connectionColor;
         RectTransform rectTransform = connection.GetComponent<RectTransform>();
         rectTransform.SetParent(content);
         rectTransform.anchorMin = Vector2.zero;
@@ -276,13 +276,13 @@ public class LineGraphController : MonoBehaviour
     /// <summary>
     /// 点の近くに値のラベルを表示する
     /// </summary>
-    /// <param name="index">X軸方向で何個目か</param>
-    /// <param name="value">Y軸方向の値</param>
-    private void CreateValueLabelByDot(int index, int value)
+    /// <param name="x">X軸方向で何個目か</param>
+    /// <param name="y">Y軸方向の値</param>
+    private void CreateValueLabelByDot(int x, float y)
     {
         GameObject label = new GameObject("label", typeof(Text));
         Text text = label.GetComponent<Text>();
-        text.text = value.ToString();
+        text.text = y.ToString();
         text.alignment = TextAnchor.MiddleCenter;
         text.verticalOverflow = VerticalWrapMode.Overflow;
         text.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -296,8 +296,8 @@ public class LineGraphController : MonoBehaviour
         rectTransform.anchorMax = Vector2.zero;
         rectTransform.localScale = Vector2.one;
         rectTransform.anchoredPosition =
-            new Vector2((index / parameter.valueSpan + 1) * parameter.xSize,
-                    value * parameter.ySize) + offset;
+            new Vector2((x / settings.valueSpan + 1) * settings.xSize,
+                    y * settings.ySize) + offset;
         rectTransform.SetSiblingIndex((int)ZOrder.LABEL);
     }
 
@@ -307,8 +307,8 @@ public class LineGraphController : MonoBehaviour
     private void FixContentSize()
     {
         Vector2 buffer = new Vector2(10, 10);
-        float width = (valueList.Count / parameter.valueSpan + 1) * parameter.xSize;
-        float height = GetMaxValue() * parameter.ySize;
+        float width = (valueList.Count / settings.valueSpan + 1) * settings.xSize;
+        float height = GetMaxY() * settings.ySize;
 
         content.sizeDelta = new Vector2(width, height) + buffer;
     }
@@ -317,16 +317,18 @@ public class LineGraphController : MonoBehaviour
     /// 現在の最大値を取得する
     /// </summary>
     /// <returns>最大値</returns>
-    private int GetMaxValue()
+    private float GetMaxY()
     {
-        int max = int.MinValue;
+        //return valueList.Max(kv => kv.Value);
+
+        float max = float.MinValue;
 
         if(valueList.Count == 0)
         {
             return 0;
         }
 
-        for(int i = 0;i < valueList.Count; i += parameter.valueSpan)
+        for(int i = 0;i < valueList.Count; i += settings.valueSpan)
         {
             max = Mathf.Max(max, valueList[i].Value);
         }
@@ -359,17 +361,17 @@ public class LineGraphController : MonoBehaviour
         rectTransform.localScale = Vector2.one;
         rectTransform.sizeDelta = Vector2.zero;
         rectTransform.anchoredPosition =
-                origin + new Vector2((index + 1) * parameter.xSize, 0) + offset;
+                origin + new Vector2((index + 1) * settings.xSize, 0) + offset;
     }
 
     /// <summary>
     /// Y軸のセパレータを作成する
     /// </summary>
-    /// <param name="value">作成するセパレータの値</param>
-    private void CreateYAxisSeparator(int value)
+    /// <param name="y">作成するセパレータの値</param>
+    private void CreateYAxisSeparator(float y)
     {
         GameObject separator =
-            new GameObject("ySeparator(" + value + ")", typeof(Image));
+            new GameObject("ySeparator(" + y + ")", typeof(Image));
         Image image = separator.GetComponent<Image>();
         image.color = new Color(0, 0, 0, 0.5f);
         RectTransform rectTransform =
@@ -383,7 +385,7 @@ public class LineGraphController : MonoBehaviour
         Vector2 origin =
             ((RectTransform)xAxis.transform).anchoredPosition;
         rectTransform.anchoredPosition = (origin +
-                new Vector2(width / 2.0f, value * parameter.ySize));
+                new Vector2(width / 2.0f, y * settings.ySize));
         rectTransform.SetSiblingIndex((int)ZOrder.AXIS_SEPARATOR);
     }
 
@@ -395,13 +397,13 @@ public class LineGraphController : MonoBehaviour
         RectTransform yAxisRect = yAxis.GetComponent<RectTransform>();
         float height = yAxisRect.sizeDelta.x;
         // スクロールしていない時に表示できるY軸方向の最大値
-        int maxValueNotScroll = (int)(height / parameter.ySize);
-        int maxValue = GetMaxValue();
-        int separatorMax = Mathf.Max(maxValue, maxValueNotScroll);
+        float maxValueNotScroll = (height / settings.ySize);
+        float maxValue = GetMaxY();
+        int separatorMax = Mathf.CeilToInt(Mathf.Max(maxValue, maxValueNotScroll));
 
-        for(int value = 0; value <= separatorMax; value += parameter.yAxisSeparatorSpan)
+        for(float y = 0; y <= separatorMax; y += settings.yAxisSeparatorSpan)
         {
-            string separatorName = "ySeparator(" + value + ")";
+            string separatorName = "ySeparator(" + y + ")";
 
             // 存在したら追加しない
             if (this.transform.Find(separatorName) != null)
@@ -409,20 +411,20 @@ public class LineGraphController : MonoBehaviour
                 continue;
             }
 
-            CreateYAxisSeparator(value);
-            CreateYLabel(value);
+            CreateYAxisSeparator(y);
+            CreateYLabel(y);
         }
     }
 
     /// <summary>
     /// Y座標のセパレータのラベルを作成
     /// </summary>
-    /// <param name="value">Y軸方向の値</param>
-    private void CreateYLabel(int value)
+    /// <param name="y">Y軸方向の値</param>
+    private void CreateYLabel(float y)
     {
-        GameObject label = new GameObject("yLabel(" + value + ")", typeof(Text));
+        GameObject label = new GameObject("yLabel(" + y + ")", typeof(Text));
         Text text = label.GetComponent<Text>();
-        text.text = value.ToString();
+        text.text = y.ToString();
         text.alignment = TextAnchor.MiddleRight;
         text.verticalOverflow = VerticalWrapMode.Overflow;
         text.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -438,7 +440,7 @@ public class LineGraphController : MonoBehaviour
         rectTransform.localScale = Vector2.one;
         rectTransform.sizeDelta = Vector2.zero;
         rectTransform.anchoredPosition =
-                origin + new Vector2(0, value * parameter.ySize) + offset;
+                origin + new Vector2(0, y * settings.ySize) + offset;
     }
 
     /// <summary>
@@ -466,7 +468,7 @@ public class LineGraphController : MonoBehaviour
             if (xLabelMatch.Groups.Count > 1)
             {
                 int index = int.Parse(xLabelMatch.Groups[1].Value);
-                float x = origin.x + (index / parameter.valueSpan + 1) * parameter.xSize;
+                float x = origin.x + (index / settings.valueSpan + 1) * settings.xSize;
                 float y = child.anchoredPosition.y;
                 Vector2 position = new Vector2(x + contentPosition.x, y);
 
@@ -479,7 +481,7 @@ public class LineGraphController : MonoBehaviour
             {
                 int value = int.Parse(ySeparatorMatch.Groups[1].Value);
                 float x = child.anchoredPosition.x;
-                float y = origin.y + value * parameter.ySize;
+                float y = origin.y + value * settings.ySize;
                 Vector2 position = new Vector2(x, y + contentPosition.y);
 
                 child.anchoredPosition = position;
@@ -491,7 +493,7 @@ public class LineGraphController : MonoBehaviour
             {
                 int value = int.Parse(yLabelMatch.Groups[1].Value);
                 float x = child.anchoredPosition.x;
-                float y = origin.y + value * parameter.ySize;
+                float y = origin.y + value * settings.ySize;
                 Vector2 position = new Vector2(x, y + contentPosition.y);
 
                 child.anchoredPosition = position;
@@ -505,7 +507,7 @@ public class LineGraphController : MonoBehaviour
     /// <summary>
     /// グラフの表示を更新する
     /// </summary>
-    private void RefleshGraph()
+    private void RefreshGraph()
     {
         for (int i = 0; i < content.childCount; i++)
         {
@@ -529,11 +531,11 @@ public class LineGraphController : MonoBehaviour
 
         previousDot = null;
 
-        for (int i = 0; i < valueList.Count; i += parameter.valueSpan)
+        for (int x = 0; x < valueList.Count; x += settings.valueSpan)
         {
-            string label = valueList[i].Key;
-            int value = valueList[i].Value;
-            GameObject dot = CreateNewDot(i, value);
+            string label = valueList[x].Key;
+            float y = valueList[x].Value;
+            GameObject dot = CreateNewDot(x, y);
 
             if (previousDot != null)
             {
@@ -547,8 +549,8 @@ public class LineGraphController : MonoBehaviour
                         rectTransform2.anchoredPosition);
             }
 
-            CreateValueLabelByDot(i, value);
-            CreateXLabel(i, label);
+            CreateValueLabelByDot(x, y);
+            CreateXLabel(x, label);
 
             previousDot = dot;
         }

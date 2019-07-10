@@ -5,25 +5,25 @@ using UnityEngine;
 public class Sample : MonoBehaviour
 {
     LineGraphController lineGraph;
-    List<int> valueList;
-    LineGraphController.LineGraphParameter parameter;
+    List<float> valueList;
+    LineGraphController.LineGraphSettings settings;
 
     void Start()
     {
         lineGraph = GameObject.Find("LineGraph").GetComponent<LineGraphController>();
 
-        parameter = LineGraphController.LineGraphParameter.Default;
+        settings = LineGraphController.LineGraphSettings.Default;
 
-        lineGraph.ChangeParam(parameter);
+        lineGraph.ChangeParam(settings);
 
-        valueList = new List<int>()
+        valueList = new List<float>()
         {
-            5, 10, 7, 1, 20, 100
+            5.25f, 10f, 7f, 1f, 20f, 100.5f
         };
 
         for (int i = 0; i < valueList.Count; i++)
         {
-            lineGraph.AddValue((i + 1).ToString(), valueList[i]);
+            lineGraph.AddValue("woh" + (i + 1).ToString(), valueList[i]);
         }
 
         lineGraph.SetXUnitText("時間(s)");
@@ -42,36 +42,36 @@ public class Sample : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            parameter.xSize = 10;
-            lineGraph.ChangeParam(parameter);
+            settings.xSize = 10;
+            lineGraph.ChangeParam(settings);
         }
         if (Input.GetKeyDown(KeyCode.X))
         {
-            parameter.ySize = 1;
-            lineGraph.ChangeParam(parameter);
+            settings.ySize = 1;
+            lineGraph.ChangeParam(settings);
         }
         if (Input.GetKeyDown(KeyCode.C))
         {
-            parameter.yAxisSeparatorSpan = 50;
-            lineGraph.ChangeParam(parameter);
+            settings.yAxisSeparatorSpan = 50;
+            lineGraph.ChangeParam(settings);
         }
         if (Input.GetKeyDown(KeyCode.V))
         {
-            parameter.valueSpan = 5;
-            lineGraph.ChangeParam(parameter);
+            settings.valueSpan = 5;
+            lineGraph.ChangeParam(settings);
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
             Color blue = Color.blue;
-            parameter.dotColor = blue;
+            settings.dotColor = blue;
             blue.a = 0.5f;
-            parameter.connectionColor = blue;
-            lineGraph.ChangeParam(parameter);
+            settings.connectionColor = blue;
+            lineGraph.ChangeParam(settings);
         }
         if (Input.GetKeyDown(KeyCode.A))
         {
-            parameter = LineGraphController.LineGraphParameter.Default;
-            lineGraph.ChangeParam(parameter);
+            settings = LineGraphController.LineGraphSettings.Default;
+            lineGraph.ChangeParam(settings);
         }
     }
 }
