@@ -22,8 +22,6 @@ public class LineGraphController : MonoBehaviour
     public Spawner YmarkerContent;
     public Spawner XmarkerContent;
     // 軸のGameObject
-    private GameObject xAxis;
-    private GameObject yAxis;
     private GameObject xUnitLabel;
     private GameObject yUnitLabel;
 
@@ -74,9 +72,6 @@ public class LineGraphController : MonoBehaviour
     {
         viewport = this.transform.Find("Viewport") as RectTransform;
         content = viewport.Find("Content") as RectTransform;
-        //markerContent = this.transform.Find("YMarkersContent") as RectTransform;
-        xAxis = this.transform.Find("X Axis").gameObject;
-        yAxis = this.transform.Find("Y Axis").gameObject;
         xUnitLabel = this.transform.Find("X Unit Label").gameObject;
         yUnitLabel = this.transform.Find("Y Unit Label").gameObject;
         valueList = new List<KeyValuePair<string, float>>();
@@ -85,7 +80,6 @@ public class LineGraphController : MonoBehaviour
 
     private void Start()
     {
-        InitializeAxis();
         CreateYAxisSeparatorFitGraph();
         FixLabelAndAxisSeparatorPosition();
     }
@@ -118,8 +112,7 @@ public class LineGraphController : MonoBehaviour
             }
 
             CreateValueLabelByDot(index, value);
-            CreateXLabel(index, label);
-            CreateXLabel2(index, label);
+            CreateXMarker(index, label);
 
             previousDot = dot;
 
@@ -199,36 +192,6 @@ public class LineGraphController : MonoBehaviour
     public void OnGraphScroll(Vector2 scrollPosition)
     {
         FixLabelAndAxisSeparatorPosition();
-    }
-
-    /// <summary>
-    /// X軸、Y軸の位置、サイズを設定
-    /// </summary>
-    private void InitializeAxis()
-    {
-        Vector2 origin = content.position;
-        RectTransform xAxisTransform =
-            xAxis.GetComponent<RectTransform>();
-        RectTransform yAxisTransform =
-            yAxis.GetComponent<RectTransform>();
-
-        xAxis.transform.position = origin;
-        yAxis.transform.position = origin;
-        xAxisTransform.sizeDelta =
-            new Vector2(viewport.rect.width, xAxisTransform.sizeDelta.y);
-        yAxisTransform.sizeDelta =
-            new Vector2(viewport.rect.height, yAxisTransform.sizeDelta.y);
-
-        RectTransform rectTransform = this.transform as RectTransform;
-        Vector2 xPadding = new Vector2(-5, 5);
-        Vector2 yPadding = new Vector2(5, -5);
-        Vector2 rightBottom =
-            new Vector2(rectTransform.sizeDelta.x, 0) + xPadding;
-        Vector2 leftTop =
-            new Vector2(0, rectTransform.sizeDelta.y) + yPadding;
-
-        //((RectTransform)xUnitLabel.transform).localPosition = rightBottom;
-        //((RectTransform)yUnitLabel.transform).localPosition = leftTop;
     }
 
     /// <summary>
@@ -350,69 +313,18 @@ public class LineGraphController : MonoBehaviour
         return max;
     }
 
-    private void CreateXLabel2(int index, string labelText){
+    private void CreateXMarker(int index, string labelText){
         var xMarker = XmarkerContent.SpawnAndGetGameObject().GetComponent<XMarker>();
         xMarker.SetLabelText(labelText);
         XmarkerContent.GetComponent<RectTransform>().sizeDelta = new Vector2((index + 1) * settings.xSize, 0);
     }
-    /// <summary>
-    /// X軸方向のラベルを作成する
-    /// </summary>
-    /// <param name="index">X軸方向で何個目か</param>
-    /// <param name="labelText">表示するラベルのテキスト</param>
-    private void CreateXLabel(int index, string labelText)
-    {
-        GameObject label = new GameObject("xLabel(" + index + ")", typeof(Text));
-        Text text = label.GetComponent<Text>();
-        text.text = labelText;
-        text.alignment = TextAnchor.UpperCenter;
-        text.verticalOverflow = VerticalWrapMode.Overflow;
-        text.horizontalOverflow = HorizontalWrapMode.Overflow;
-        text.fontSize = 10;
-        text.font = font;
-        text.color = Color.black;
-        Vector2 origin = xAxis.GetComponent<RectTransform>().anchoredPosition;
-        Vector2 offset = new Vector2(0, -5);
-        RectTransform rectTransform = label.GetComponent<RectTransform>();
-        rectTransform.SetParent(this.transform);
-        rectTransform.anchorMin = Vector2.zero;
-        rectTransform.anchorMax = Vector2.zero;
-        rectTransform.localScale = Vector2.one;
-        rectTransform.sizeDelta = Vector2.zero;
-        rectTransform.anchoredPosition =
-                origin + new Vector2((index + 1) * settings.xSize, 0) + offset;
-    }
-
-    /// <summary>
-    /// Y軸のセパレータを作成する
-    /// </summary>
-    /// <param name="y">作成するセパレータの値</param>
-    private void CreateYAxisSeparator(float y)
-    {
-        GameObject separator =
-            new GameObject("ySeparator(" + y + ")", typeof(Image));
-        Image image = separator.GetComponent<Image>();
-        image.color = new Color(0, 0, 0, 0.5f);
-        RectTransform rectTransform =
-            separator.GetComponent<RectTransform>();
-        rectTransform.SetParent(this.transform);
-        rectTransform.anchorMin = Vector2.zero;
-        rectTransform.anchorMax = Vector2.zero;
-        rectTransform.localScale = Vector2.one;
-        float width = viewport.rect.width;
-        rectTransform.sizeDelta = new Vector2(width, settings.seperatorThickness);
-        Vector2 origin =
-            ((RectTransform)xAxis.transform).anchoredPosition;
-        rectTransform.anchoredPosition = (origin +
-                new Vector2(width / 2.0f, y * settings.ySize));
-        rectTransform.SetSiblingIndex((int)ZOrder.AXIS_SEPARATOR);
-    }
 
     private void CreateYMarker(float y)
     {
-        var separator = YmarkerContent.SpawnAndGetGameObject().GetComponent<YMarker>();
-        separator.Init(y.ToString(), new Color(0, 0, 0, 0.5f));
-        separator.transform.SetAsFirstSibling();
+        var marker = YmarkerContent.SpawnAndGetGameObject().GetComponent<YMarker>();
+        marker.Init(y.ToString(), new Color(0, 0, 0, 0.5f));
+        marker.transform.SetAsFirstSibling();
+        marker.name = "YMarker(" + y + ")";
     }
 
     /// <summary>
@@ -420,30 +332,22 @@ public class LineGraphController : MonoBehaviour
     /// </summary>
     private void CreateYAxisSeparatorFitGraph()
     {
-        RectTransform yAxisRect = yAxis.GetComponent<RectTransform>();
-        float height = yAxisRect.sizeDelta.x;
+        //RectTransform yAxisRect = yAxis.GetComponent<RectTransform>();
+        float height = YmarkerContent.GetComponent<RectTransform>().sizeDelta.y; //yAxisRect.sizeDelta.x;
+        //float height = content.sizeDelta.y; //yAxisRect.sizeDelta.x;
         // スクロールしていない時に表示できるY軸方向の最大値
         float maxValueNotScroll = (height / settings.ySize);
 
         float maxValue = GetMaxY();
-        int separatorMax = (int)Mathf.Max(maxValue, maxValueNotScroll) + (int)settings.yAxisSeparatorSpan;
+        int separatorMax = (int)Mathf.Max(maxValue, maxValueNotScroll);// + (int)settings.yAxisSeparatorSpan;
 
 
         for(float y = 0; y <= separatorMax; y += settings.yAxisSeparatorSpan)
         {
-            string separatorName = "ySeparator(" + y + ")";
-            string separatorName2 = "ySeparator2(" + y + ")";
+            string markerName = "YMarker(" + y + ")";
 
             // 存在したら追加しない
-            if (this.transform.Find(separatorName) != null)
-            {
-                continue;
-            }
-
-            CreateYAxisSeparator(y);
-            CreateYLabel(y);
-
-            if (YmarkerContent.transform.Find(separatorName2) == null)
+            if (YmarkerContent.transform.Find(markerName) == null)
             {
                 CreateYMarker(y);
             }
@@ -451,93 +355,14 @@ public class LineGraphController : MonoBehaviour
     }
 
     /// <summary>
-    /// Y座標のセパレータのラベルを作成
-    /// </summary>
-    /// <param name="y">Y軸方向の値</param>
-    private void CreateYLabel(float y)
-    {
-        GameObject label = new GameObject("yLabel(" + y + ")", typeof(Text));
-        Text text = label.GetComponent<Text>();
-        text.text = y.ToString();
-        text.alignment = TextAnchor.MiddleRight;
-        text.verticalOverflow = VerticalWrapMode.Overflow;
-        text.horizontalOverflow = HorizontalWrapMode.Overflow;
-        text.fontSize = 10;
-        text.font = font;
-        text.color = Color.black;
-        Vector2 origin = xAxis.GetComponent<RectTransform>().anchoredPosition;
-        Vector2 offset = new Vector2(-5, 0);
-        RectTransform rectTransform = label.GetComponent<RectTransform>();
-        rectTransform.SetParent(this.transform);
-        rectTransform.anchorMin = Vector2.zero;
-        rectTransform.anchorMax = Vector2.zero;
-        rectTransform.localScale = Vector2.one;
-        rectTransform.sizeDelta = Vector2.zero;
-        rectTransform.anchoredPosition =
-                origin + new Vector2(0, y * settings.ySize) + offset;
-    }
-
-    /// <summary>
     /// グラフ外のラベルと軸セパレータの位置を更新
     /// </summary>
     private void FixLabelAndAxisSeparatorPosition()
     {
-        RectTransform xAxisRect = xAxis.GetComponent<RectTransform>();
-        RectTransform yAxisRect = yAxis.GetComponent<RectTransform>();
-        Vector2 origin = xAxisRect.anchoredPosition;
         Vector2 contentPosition = content.anchoredPosition;
         YmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(YmarkerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + settings.seperatorThickness);
         XmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(content.anchoredPosition.x,  XmarkerContent.GetComponent<RectTransform>().anchoredPosition.y);
-        float xLimit = origin.x + xAxisRect.sizeDelta.x;
-        float yLimit = origin.y + yAxisRect.sizeDelta.x;
 
-        for(int i = 0;i < this.transform.childCount; i++)
-        {
-            RectTransform child = this.transform.GetChild(i) as RectTransform;
-
-            if (child == null) continue;
-
-            Match xLabelMatch = Regex.Match(child.name, "^xLabel\\(([0-9]+)\\)$");
-            Match ySeparatorMatch = Regex.Match(child.name, "^ySeparator\\(([0-9]+)\\)$");
-            Match yLabelMatch = Regex.Match(child.name, "^yLabel\\(([0-9]+)\\)$");
-
-            if (xLabelMatch.Groups.Count > 1)
-            {
-                int index = int.Parse(xLabelMatch.Groups[1].Value);
-                float x = origin.x + (index / settings.valueSpan + 1) * settings.xSize;
-                float y = child.anchoredPosition.y;
-                Vector2 position = new Vector2(x + contentPosition.x, y);
-
-                child.anchoredPosition = position;
-                child.gameObject.SetActive(
-                        origin.x <= position.x &&
-                        position.x <= xLimit);
-            }
-            else if (ySeparatorMatch.Groups.Count > 1)
-            {
-                int value = int.Parse(ySeparatorMatch.Groups[1].Value);
-                float x = child.anchoredPosition.x;
-                float y = origin.y + value * settings.ySize;
-                Vector2 position = new Vector2(x, y + contentPosition.y);
-
-                child.anchoredPosition = position;
-                child.gameObject.SetActive(
-                        origin.y <= position.y &&
-                        position.y <= yLimit);
-            }
-            else if (yLabelMatch.Groups.Count > 1)
-            {
-                int value = int.Parse(yLabelMatch.Groups[1].Value);
-                float x = child.anchoredPosition.x;
-                float y = origin.y + value * settings.ySize;
-                Vector2 position = new Vector2(x, y + contentPosition.y);
-
-                child.anchoredPosition = position;
-                child.gameObject.SetActive(
-                        origin.y <= position.y &&
-                        position.y <= yLimit);
-            }
-        }
     }
 
     /// <summary>
@@ -550,22 +375,9 @@ public class LineGraphController : MonoBehaviour
             Destroy(content.GetChild(i).gameObject);
         }
 
-        for (int i = 0; i < this.transform.childCount; i++)
-        {
-            Transform child = this.transform.GetChild(i);
-            if (Regex.IsMatch(child.name, "^xLabel\\([0-9]+\\)$") ||
-                    Regex.IsMatch(child.name, "^ySeparator\\([0-9]+\\)$") ||
-                    Regex.IsMatch(child.name, "^yLabel\\([0-9]+\\)$"))
-            {
-                // Destroyだと破棄されるまでにラグがあるので
-                // DestroyImmediateを使う
-                DestroyImmediate(child.gameObject);
-                // 親から即座に削除されるのでiを調整
-                i--;
-            }
-        }
-
         previousDot = null;
+        YmarkerContent.DestroyAllSpawns();
+        XmarkerContent.DestroyAllSpawns();
 
         for (int x = 0; x < valueList.Count; x += settings.valueSpan)
         {
@@ -586,8 +398,7 @@ public class LineGraphController : MonoBehaviour
             }
 
             CreateValueLabelByDot(x, y);
-            CreateXLabel(x, label);
-            CreateXLabel2(x, label);
+            CreateXMarker(x, label);
 
             previousDot = dot;
         }
