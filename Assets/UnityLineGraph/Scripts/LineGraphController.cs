@@ -19,7 +19,8 @@ public class LineGraphController : MonoBehaviour
     // グラフの要素を配置するContent
     // グラフの要素はグラフの点、ライン
     private RectTransform content;
-    public Spawner markerContent;
+    public Spawner YmarkerContent;
+    public Spawner XmarkerContent;
     // 軸のGameObject
     private GameObject xAxis;
     private GameObject yAxis;
@@ -118,6 +119,7 @@ public class LineGraphController : MonoBehaviour
 
             CreateValueLabelByDot(index, value);
             CreateXLabel(index, label);
+            CreateXLabel2(index, label);
 
             previousDot = dot;
 
@@ -322,8 +324,7 @@ public class LineGraphController : MonoBehaviour
                         + settings.seperatorThickness;
 
         content.sizeDelta = new Vector2(width, height) + buffer;
-        markerContent.GetComponent<RectTransform>().sizeDelta = new Vector2(markerContent.GetComponent<RectTransform>().sizeDelta.x, content.sizeDelta.y);
-
+        YmarkerContent.GetComponent<RectTransform>().sizeDelta = new Vector2(YmarkerContent.GetComponent<RectTransform>().sizeDelta.x, content.sizeDelta.y);
     }
 
     /// <summary>
@@ -349,6 +350,11 @@ public class LineGraphController : MonoBehaviour
         return max;
     }
 
+    private void CreateXLabel2(int index, string labelText){
+        var xMarker = XmarkerContent.SpawnAndGetGameObject().GetComponent<XMarker>();
+        xMarker.SetLabelText(labelText);
+        XmarkerContent.GetComponent<RectTransform>().sizeDelta = new Vector2((index + 1) * settings.xSize, 0);
+    }
     /// <summary>
     /// X軸方向のラベルを作成する
     /// </summary>
@@ -404,7 +410,7 @@ public class LineGraphController : MonoBehaviour
 
     private void CreateYMarker(float y)
     {
-        var separator = markerContent.SpawnAndGetGameObject().GetComponent<YMarker>();
+        var separator = YmarkerContent.SpawnAndGetGameObject().GetComponent<YMarker>();
         separator.Init(y.ToString(), new Color(0, 0, 0, 0.5f));
         separator.transform.SetAsFirstSibling();
     }
@@ -437,7 +443,7 @@ public class LineGraphController : MonoBehaviour
             CreateYAxisSeparator(y);
             CreateYLabel(y);
 
-            if (markerContent.transform.Find(separatorName2) == null)
+            if (YmarkerContent.transform.Find(separatorName2) == null)
             {
                 CreateYMarker(y);
             }
@@ -480,7 +486,8 @@ public class LineGraphController : MonoBehaviour
         RectTransform yAxisRect = yAxis.GetComponent<RectTransform>();
         Vector2 origin = xAxisRect.anchoredPosition;
         Vector2 contentPosition = content.anchoredPosition;
-        markerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(markerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + settings.seperatorThickness);
+        YmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(YmarkerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + settings.seperatorThickness);
+        XmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(content.anchoredPosition.x,  XmarkerContent.GetComponent<RectTransform>().anchoredPosition.y);
         float xLimit = origin.x + xAxisRect.sizeDelta.x;
         float yLimit = origin.y + yAxisRect.sizeDelta.x;
 
@@ -580,6 +587,7 @@ public class LineGraphController : MonoBehaviour
 
             CreateValueLabelByDot(x, y);
             CreateXLabel(x, label);
+            CreateXLabel2(x, label);
 
             previousDot = dot;
         }
@@ -621,6 +629,6 @@ public class LineGraphController : MonoBehaviour
         }
 
         content.localPosition = contentPosition;
-        markerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(markerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + settings.seperatorThickness);
+        YmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(YmarkerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + settings.seperatorThickness);
     }
 }
