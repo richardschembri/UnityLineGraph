@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using RSToolkit.Controls;
 
 public class LineGraphController : MonoBehaviour
 {
@@ -18,7 +19,7 @@ public class LineGraphController : MonoBehaviour
     // グラフの要素を配置するContent
     // グラフの要素はグラフの点、ライン
     private RectTransform content;
-    public RectTransform markerContent;
+    public Spawner markerContent;
     // 軸のGameObject
     private GameObject xAxis;
     private GameObject yAxis;
@@ -321,7 +322,7 @@ public class LineGraphController : MonoBehaviour
                         + settings.seperatorThickness;
 
         content.sizeDelta = new Vector2(width, height) + buffer;
-        markerContent.sizeDelta = new Vector2(markerContent.sizeDelta.x, content.sizeDelta.y);
+        markerContent.GetComponent<RectTransform>().sizeDelta = new Vector2(markerContent.GetComponent<RectTransform>().sizeDelta.x, content.sizeDelta.y);
 
     }
 
@@ -401,29 +402,11 @@ public class LineGraphController : MonoBehaviour
         rectTransform.SetSiblingIndex((int)ZOrder.AXIS_SEPARATOR);
     }
 
-    private void CreateYAxisSeparator2(float y)
+    private void CreateYMarker(float y)
     {
-        GameObject separator =
-            new GameObject("ySeparator2(" + y + ")", typeof(Image));
-        Image image = separator.GetComponent<Image>();
-        image.color = new Color(0, 0, 0, 0.5f);
-        RectTransform rectTransform =
-            separator.GetComponent<RectTransform>();
-        rectTransform.SetParent(markerContent);
-        rectTransform.anchorMin = Vector2.zero;
-        rectTransform.anchorMax = Vector2.zero;
-        rectTransform.localScale = Vector2.one;
-        float width = markerContent.rect.width;
-        rectTransform.sizeDelta = new Vector2(width, settings.seperatorThickness);
-        Vector2 origin =
-            ((RectTransform)xAxis.transform).anchoredPosition;
-        /*
-        rectTransform.anchoredPosition = 
-                new Vector2(50f, (y * settings.ySize) + origin.y);
-        */
-        rectTransform.anchoredPosition = (origin +
-                new Vector2(width / 2.0f, y * settings.ySize));
-        rectTransform.SetSiblingIndex((int)ZOrder.AXIS_SEPARATOR);
+        var separator = markerContent.SpawnAndGetGameObject().GetComponent<YMarker>();
+        separator.Init(y.ToString(), new Color(0, 0, 0, 0.5f));
+        separator.transform.SetAsFirstSibling();
     }
 
     /// <summary>
@@ -454,9 +437,9 @@ public class LineGraphController : MonoBehaviour
             CreateYAxisSeparator(y);
             CreateYLabel(y);
 
-            if (markerContent.Find(separatorName2) == null)
+            if (markerContent.transform.Find(separatorName2) == null)
             {
-                CreateYAxisSeparator2(y);
+                CreateYMarker(y);
             }
         }
     }
@@ -497,7 +480,7 @@ public class LineGraphController : MonoBehaviour
         RectTransform yAxisRect = yAxis.GetComponent<RectTransform>();
         Vector2 origin = xAxisRect.anchoredPosition;
         Vector2 contentPosition = content.anchoredPosition;
-        markerContent.anchoredPosition = new Vector2(markerContent.anchoredPosition.x, content.anchoredPosition.y + settings.seperatorThickness);
+        markerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(markerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + settings.seperatorThickness);
         float xLimit = origin.x + xAxisRect.sizeDelta.x;
         float yLimit = origin.y + yAxisRect.sizeDelta.x;
 
@@ -638,6 +621,6 @@ public class LineGraphController : MonoBehaviour
         }
 
         content.localPosition = contentPosition;
-        markerContent.anchoredPosition = new Vector2(markerContent.anchoredPosition.x, content.anchoredPosition.y + settings.seperatorThickness);
+        markerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(markerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + settings.seperatorThickness);
     }
 }
