@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityLineGraph;
 
 public class Sample : MonoBehaviour
 {
@@ -72,6 +73,9 @@ public class Sample : MonoBehaviour
         {
             settings = LineGraphController.LineGraphSettings.Default;
             lineGraph.ChangeSettings(settings);
+        }
+        if(Input.GetKeyUp(KeyCode.R)){
+            lineGraph.ClearGraph();
         }
     }
 }

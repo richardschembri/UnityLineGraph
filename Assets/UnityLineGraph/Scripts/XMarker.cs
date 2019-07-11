@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿namespace UnityLineGraph
+{
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,4 +15,5 @@ public class XMarker : MonoBehaviour
 
         m_Label.text = labelText;
     }
+}
 }

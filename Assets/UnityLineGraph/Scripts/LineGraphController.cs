@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿namespace UnityLineGraph
+{
+using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
@@ -177,7 +179,7 @@ public class LineGraphController : MonoBehaviour
     {
         this.settings = param;
 
-        RefreshGraph();
+        RefreshGraphUI();
     }
 
     public LineGraphSettings GetParameter()
@@ -281,7 +283,6 @@ public class LineGraphController : MonoBehaviour
         float width = (valueList.Count / settings.valueSpan + 1) * settings.xSize;
         //float height = ((GetMaxY() + (settings.yAxisSeparatorSpan * 1.75f)) * settings.ySize) + settings.seperatorThickness;
         int sepCount = Mathf.CeilToInt(GetMaxY() / settings.yAxisSeparatorSpan) + 1;
-        Debug.Log(sepCount);
         float height = (settings.yAxisSeparatorSpan * sepCount * settings.ySize)
                         - ((settings.yAxisSeparatorSpan / 4) * settings.ySize)
                         + settings.seperatorThickness;
@@ -365,10 +366,15 @@ public class LineGraphController : MonoBehaviour
 
     }
 
+   public void ClearGraph(){
+       valueList.Clear();
+       RefreshGraphUI();
+   } 
+
     /// <summary>
     /// グラフの表示を更新する
     /// </summary>
-    private void RefreshGraph()
+    public void RefreshGraphUI()
     {
         for (int i = 0; i < content.childCount; i++)
         {
@@ -442,4 +448,5 @@ public class LineGraphController : MonoBehaviour
         content.localPosition = contentPosition;
         YmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(YmarkerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + settings.seperatorThickness);
     }
+}
 }

@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿namespace UnityLineGraph
+{
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,4 +29,5 @@ public class YMarker : MonoBehaviour
         m_LineMarker.color = lineColor;
     }
 
+}
 }
