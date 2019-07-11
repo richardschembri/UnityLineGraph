@@ -21,10 +21,9 @@ public class Sample : MonoBehaviour
         {
             5.25f, 10f, 7f, 1f, 20f, 100.5f
         };
-
         for (int i = 0; i < valueList.Count; i++)
         {
-            lineGraph.AddValue("woh" + (i + 1).ToString(), valueList[i]);
+            lineGraph.AddValue((i + 1).ToString(), valueList[i]);
         }
 
         lineGraph.SetXUnitText("時間(s)");
@@ -75,6 +74,7 @@ public class Sample : MonoBehaviour
             lineGraph.ChangeSettings(settings);
         }
         if(Input.GetKeyUp(KeyCode.R)){
+            valueList.Clear();
             lineGraph.ClearGraph();
         }
     }

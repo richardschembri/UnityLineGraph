@@ -174,10 +174,10 @@ public class LineGraphController : MonoBehaviour
     /// <summary>
     /// LineGraphParameterでパラメータを変更する
     /// </summary>
-    /// <param name="param">Parameter.</param>
-    public void ChangeSettings(LineGraphSettings param)
+    /// <param name="settings">Parameter.</param>
+    public void ChangeSettings(LineGraphSettings settings)
     {
-        this.settings = param;
+        this.settings = settings;
 
         RefreshGraphUI();
     }
@@ -314,6 +314,21 @@ public class LineGraphController : MonoBehaviour
         return max;
     }
 
+    private float GetMinY(){
+        float min = float.MaxValue;
+        if(valueList.Count == 0)
+        {
+            min = 0;
+        }
+
+        for(int i = 0;i < valueList.Count; i += settings.valueSpan)
+        {
+            min = Mathf.Min(min, valueList[i].Value);
+        }
+
+        return min;
+    }
+
     private void CreateXMarker(int index, string labelText){
         var xMarker = XmarkerContent.SpawnAndGetGameObject().GetComponent<XMarker>();
         xMarker.SetLabelText(labelText);
@@ -346,11 +361,14 @@ public class LineGraphController : MonoBehaviour
         for(float y = 0; y <= separatorMax; y += settings.yAxisSeparatorSpan)
         {
             string markerName = "YMarker(" + y + ")";
+            var yMarker = YmarkerContent.transform.Find(markerName);
 
             // 存在したら追加しない
-            if (YmarkerContent.transform.Find(markerName) == null)
+            if (yMarker == null)
             {
                 CreateYMarker(y);
+            }else{
+                yMarker.GetComponent<YMarker>().SetLabelText(y.ToString()); 
             }
         }
     }
