@@ -32,16 +32,24 @@ public class LineGraphController : MonoBehaviour
 
     private List<KeyValuePair<string, float>> valueList;
 
+    public List<GraphLine> GraphLines{
+        get{
+            return m_GraphLineSpawner.SpawnedGameObjects.Select(gl => gl.GetComponent<GraphLine>()).ToList();
+        }
+    }
+
     public struct LineGraphSettings{
         public float xSize;
         public float ySize;
         public float yAxisSeparatorSpan;
-        public int valueSpan;
+        //public int valueSpan;
         public Color dotColor;
         public Color connectionColor;
         public bool autoScroll;
 
         public float seperatorThickness;
+
+        public List<string> xAxisLabels;
 
         public static LineGraphSettings Default
         {
@@ -52,11 +60,12 @@ public class LineGraphController : MonoBehaviour
                     xSize = 50,
                     ySize = 5,
                     yAxisSeparatorSpan = 10,
-                    valueSpan = 1,
+                    //valueSpan = 1,
                     dotColor = Color.white,
                     connectionColor = Color.white,
                     autoScroll = true,
                     seperatorThickness = 2f,
+                    xAxisLabels = new List<string>(),
                 };
             }
         }
@@ -82,8 +91,6 @@ public class LineGraphController : MonoBehaviour
 
     private void Start()
     {
-        CreateYAxisSeparatorFitGraph();
-        FixLabelAndAxisSeparatorPosition();
     }
 
     /// <summary>
@@ -95,9 +102,6 @@ public class LineGraphController : MonoBehaviour
     {
         valueList.Add(new KeyValuePair<string, float>(label, value));
 
-        // 点を追加する
-        if (settings.valueSpan == 1 || valueList.Count % settings.valueSpan == 1)
-        {
             int index = valueList.Count - 1;
             GameObject dot = CreateNewDot(index, value);
 
@@ -121,8 +125,8 @@ public class LineGraphController : MonoBehaviour
             FixContentSize();
 
             // Yセパレータの更新
-            CreateYAxisSeparatorFitGraph();
-            FixLabelAndAxisSeparatorPosition();
+            CreateYAxisMarkers();
+            UpdateMakersPosition();
 
             if (settings.autoScroll)
             {
@@ -130,7 +134,6 @@ public class LineGraphController : MonoBehaviour
 
                 CapturePoint(rect.localPosition);
             }
-        }
     }
 
     /// <summary>
@@ -159,15 +162,16 @@ public class LineGraphController : MonoBehaviour
     /// <param name="yAxisSeparatorSpan">Y軸セパレータの間隔</param>
     /// <param name="valueSpan">X軸方向の点を表示する間隔</param>
     /// <param name="autoScroll">自動的にスクロールするか</param>
-    public void ChangeParam(float xSize, float ySize, int yAxisSeparatorSpan, int valueSpan, bool autoScroll)
+    public void ChangeSettings(float xSize, float ySize, int yAxisSeparatorSpan, int valueSpan, bool autoScroll, List<string> xAxisLabels)
     {
         ChangeSettings(new LineGraphSettings()
         {
             xSize = xSize,
             ySize = ySize,
             yAxisSeparatorSpan = yAxisSeparatorSpan,
-            valueSpan = valueSpan,
-            autoScroll = autoScroll
+            //valueSpan = valueSpan,
+            autoScroll = autoScroll,
+            xAxisLabels = xAxisLabels
         });
     }
 
@@ -178,8 +182,23 @@ public class LineGraphController : MonoBehaviour
     public void ChangeSettings(LineGraphSettings settings)
     {
         this.settings = settings;
+    }
 
-        RefreshGraphUI();
+    private Spawner m_graphLineSpawner;
+    public Spawner m_GraphLineSpawner{
+        get{
+            if(m_graphLineSpawner == null){
+                m_graphLineSpawner = content.GetComponent<Spawner>();
+            }
+            return m_graphLineSpawner;
+        }
+    }
+
+    public GraphLine AddGraphLine(Color lineColor, Color pointColor){
+        var graphLine = m_GraphLineSpawner.SpawnAndGetGameObject().GetComponent<GraphLine>();
+        graphLine.settings = settings;
+        graphLine.SetColors(lineColor, pointColor);
+        return graphLine;
     }
 
     public LineGraphSettings GetParameter()
@@ -193,7 +212,7 @@ public class LineGraphController : MonoBehaviour
     /// <param name="scrollPosition">スクロールの位置</param>
     public void OnGraphScroll(Vector2 scrollPosition)
     {
-        FixLabelAndAxisSeparatorPosition();
+        UpdateMakersPosition();
     }
 
     /// <summary>
@@ -215,8 +234,13 @@ public class LineGraphController : MonoBehaviour
         rectTransform.anchorMax = Vector2.zero;
         rectTransform.localScale = Vector2.one;
         rectTransform.sizeDelta = new Vector2(5, 5);
+        /*
         rectTransform.anchoredPosition =
             new Vector2((index / settings.valueSpan + 1) * settings.xSize,
+                    value * settings.ySize);
+        */
+        rectTransform.anchoredPosition =
+            new Vector2((index / 2) * settings.xSize,
                     value * settings.ySize);
         rectTransform.SetSiblingIndex((int)ZOrder.DOT);
 
@@ -268,8 +292,13 @@ public class LineGraphController : MonoBehaviour
         rectTransform.anchorMin = Vector2.zero;
         rectTransform.anchorMax = Vector2.zero;
         rectTransform.localScale = Vector2.one;
+        /*
         rectTransform.anchoredPosition =
             new Vector2((x / settings.valueSpan + 1) * settings.xSize,
+                    y * settings.ySize) + offset;
+        */
+        rectTransform.anchoredPosition =
+            new Vector2((x / 2) * settings.xSize,
                     y * settings.ySize) + offset;
         rectTransform.SetSiblingIndex((int)ZOrder.LABEL);
     }
@@ -280,7 +309,9 @@ public class LineGraphController : MonoBehaviour
     private void FixContentSize()
     {
         Vector2 buffer = new Vector2(10, 10);
-        float width = (valueList.Count / settings.valueSpan + 1) * settings.xSize;
+        //float width = (valueList.Count / settings.valueSpan + 1) * settings.xSize;
+        //float width = (settings.xAxisLabels.Count / settings.valueSpan + 1) * settings.xSize;
+        float width = (settings.xAxisLabels.Count / 2) * settings.xSize;
         //float height = ((GetMaxY() + (settings.yAxisSeparatorSpan * 1.75f)) * settings.ySize) + settings.seperatorThickness;
         int sepCount = Mathf.CeilToInt(GetMaxY() / settings.yAxisSeparatorSpan) + 1;
         float height = (settings.yAxisSeparatorSpan * sepCount * settings.ySize)
@@ -297,18 +328,10 @@ public class LineGraphController : MonoBehaviour
     /// <returns>最大値</returns>
     private float GetMaxY()
     {
-        //return valueList.Max(kv => kv.Value);
-
         float max = float.MinValue;
 
-        if(valueList.Count == 0)
-        {
-            return settings.yAxisSeparatorSpan;//0;
-        }
-
-        for(int i = 0;i < valueList.Count; i += settings.valueSpan)
-        {
-            max = Mathf.Max(max, valueList[i].Value);
+        for (int i = 0; i < GraphLines.Count; i++){
+            max = Mathf.Max(max, GraphLines[i].GetMaxY());
         }
 
         return max;
@@ -316,47 +339,50 @@ public class LineGraphController : MonoBehaviour
 
     private float GetMinY(){
         float min = float.MaxValue;
-        if(valueList.Count == 0)
-        {
-            min = 0;
-        }
 
-        for(int i = 0;i < valueList.Count; i += settings.valueSpan)
-        {
-            min = Mathf.Min(min, valueList[i].Value);
+        for (int i = 0; i < GraphLines.Count; i++){
+            min = Mathf.Min(min, GraphLines[i].GetMinY());
         }
 
         return min;
     }
 
     private void CreateXMarker(int index, string labelText){
-        var xMarker = XmarkerContent.SpawnAndGetGameObject().GetComponent<XMarker>();
-        xMarker.SetLabelText(labelText);
+        var markerName = "XMarker(" + index + ")";
+        if(XmarkerContent.SpawnedGameObjects.Any(xmc => xmc.name == markerName)){
+            return;
+        }
+
+        var marker = XmarkerContent.SpawnAndGetGameObject().GetComponent<XMarker>();
+        marker.SetLabelText(labelText);
         XmarkerContent.GetComponent<RectTransform>().sizeDelta = new Vector2((index + 1) * settings.xSize, 0);
+
+        marker.name = markerName;
     }
 
     private void CreateYMarker(float y)
     {
+        var markerName = "YMarker(" + y + ")";
+        if(YmarkerContent.SpawnedGameObjects.Any(ymc => ymc.name == markerName)){
+            return;
+        }
+
         var marker = YmarkerContent.SpawnAndGetGameObject().GetComponent<YMarker>();
         marker.Init(y.ToString(), new Color(0, 0, 0, 0.5f));
         marker.transform.SetAsFirstSibling();
-        marker.name = "YMarker(" + y + ")";
+        marker.name = markerName;
+        marker.SetLabelText(y.ToString()); 
     }
 
     /// <summary>
     /// Y軸のセパレータを今のグラフに合わせて表示する
     /// </summary>
-    private void CreateYAxisSeparatorFitGraph()
+    private void CreateYAxisMarkers()
     {
-        //RectTransform yAxisRect = yAxis.GetComponent<RectTransform>();
-        float height = YmarkerContent.GetComponent<RectTransform>().sizeDelta.y; //yAxisRect.sizeDelta.x;
-        //float height = content.sizeDelta.y; //yAxisRect.sizeDelta.x;
-        // スクロールしていない時に表示できるY軸方向の最大値
-        float maxValueNotScroll = (height / settings.ySize);
-
+        YmarkerContent.DestroyAllSpawns();
         float maxValue = GetMaxY();
-        int separatorMax = (int)Mathf.Max(maxValue, maxValueNotScroll);// + (int)settings.yAxisSeparatorSpan;
-
+        int seperatorCount = Mathf.CeilToInt(maxValue / settings.yAxisSeparatorSpan);
+        float separatorMax = (float)seperatorCount * settings.yAxisSeparatorSpan;// + (int)settings.yAxisSeparatorSpan;
 
         for(float y = 0; y <= separatorMax; y += settings.yAxisSeparatorSpan)
         {
@@ -376,7 +402,7 @@ public class LineGraphController : MonoBehaviour
     /// <summary>
     /// グラフ外のラベルと軸セパレータの位置を更新
     /// </summary>
-    private void FixLabelAndAxisSeparatorPosition()
+    private void UpdateMakersPosition()
     {
         Vector2 contentPosition = content.anchoredPosition;
         YmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(YmarkerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + settings.seperatorThickness);
@@ -388,7 +414,7 @@ public class LineGraphController : MonoBehaviour
        valueList.Clear();
        RefreshGraphUI();
    } 
-
+/*
     /// <summary>
     /// グラフの表示を更新する
     /// </summary>
@@ -396,7 +422,7 @@ public class LineGraphController : MonoBehaviour
     {
         for (int i = 0; i < content.childCount; i++)
         {
-            Destroy(content.GetChild(i).gameObject);
+            //Destroy(content.GetChild(i).gameObject);
         }
 
         previousDot = null;
@@ -432,7 +458,30 @@ public class LineGraphController : MonoBehaviour
         CreateYAxisSeparatorFitGraph();
         FixLabelAndAxisSeparatorPosition();
     }
+ */
+    /// <summary>
+    /// グラフの表示を更新する
+    /// </summary>
+    public void RefreshGraphUI()
+    {
 
+        // Xセパレータの更新
+        CreateXAxisMarkers();
+        // Yセパレータの更新
+        CreateYAxisMarkers();
+
+        FixContentSize();
+
+        UpdateMakersPosition();
+    }
+
+    public void CreateXAxisMarkers(){
+        XmarkerContent.DestroyAllSpawns();
+        for (int x = 0; x < settings.xAxisLabels.Count; x++) // += settings.valueSpan)
+        {
+            CreateXMarker(x, settings.xAxisLabels[x]);
+        }
+    }
     /// <summary>
     /// ある点をグラフの中央になるようにスクロールする
     /// </summary>

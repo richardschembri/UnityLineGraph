@@ -3,33 +3,50 @@
     using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
+    using UnityEngine.Events;
     using UnityEngine.UI;
     using RSToolkit.Controls;
 
     public class GraphLine : MonoBehaviour
     {
-        [SerializeField]
-        private Sprite m_pointSprite;
         private RectTransform content;
         private Color m_pointColor;
-        private List<KeyValuePair<string, float>> valueList;
+        private List<KeyValuePair<string, float>> valueList = new List<KeyValuePair<string, float>>();
         private Color m_lineColor;
         public LineGraphController.LineGraphSettings settings;
 
-        public Spawner PointLabelSpawner;
         public Spawner PointSpawner;
-        public Spawner LineSpawner;
+        public Spawner SubLineSpawner;
 
-        // Start is called before the first frame update
-        void Start()
-        {
-            
+        private GraphPoint endPoint;
+        public class OnValueAddedEvent : UnityEvent<float, float> {}
+        public OnValueAddedEvent OnValueAdded = new OnValueAddedEvent();        
+/* 
+        private LineGraphController m_parentController;
+        public LineGraphController ParentController{
+            get{
+                return m_parentController;
+            }
+            set{
+                m_parentController = value;
+            }
+        }
+*/
+        private int m_EndPointIndex{
+            get{
+                return valueList.Count - 1;
+            }
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-            
+        private  KeyValuePair<string, float> m_EndPointLabelValue{
+            get{
+                return valueList[m_EndPointIndex];
+            }
+        }
+
+        public void SetColors(Color lineColor, Color pointColor){
+            m_lineColor = lineColor;
+            m_pointColor = pointColor;
         }
 
         /// <summary>
@@ -38,30 +55,37 @@
         /// <returns>The new dot.</returns>
         /// <param name="index">X軸方向で何個目か</param>
         /// <param name="value">Y軸方向の値</param>
-        private GameObject GenerateNewPoint(int index, float value)
+        private GraphPoint GenerateNewPoint()
         {
-            var point = PointSpawner.SpawnAndGetGameObject();
-            var pointImage = point.GetComponent<Image>();
-            pointImage.color = m_pointColor;
-            var pointRectTransform = point.GetComponent<RectTransform>();
-            pointRectTransform.anchorMin = Vector2.zero;
-            pointRectTransform.anchorMax = Vector2.zero;
-            pointRectTransform.localScale = Vector2.one;
-            pointRectTransform.anchoredPosition =
-                new Vector2((index / settings.valueSpan + 1) * settings.xSize,
-                        value * settings.ySize);
-            pointRectTransform.SetSiblingIndex((int)SortOrder.POINT);
+            
+            var point = PointSpawner.SpawnAndGetGameObject().GetComponent<GraphPoint>();
+            /*
+            var pointPosition = 
+                new Vector2((m_EndPointIndex / settings.valueSpan + 1) * settings.xSize,
+                        m_EndPointLabelValue.Value * settings.ySize);
+            */
+            var pointX = ((m_EndPointIndex + 1 / 2) * settings.xSize) + settings.xSize;
+            var pointPosition = 
+                new Vector2(pointX,
+                        m_EndPointLabelValue.Value * settings.ySize);
+
+            point.Set(m_EndPointLabelValue.Key, m_EndPointLabelValue.Value, pointPosition, m_pointColor);
 
             return point;
         }
+
+        private void GenerateSubLine(GraphPoint from, GraphPoint to){
+            GenerateSubLine(from.AnchoredPosition, to.AnchoredPosition);
+        }
+
         /// <summary>
         /// 点と点をつなぐ線を作成する
         /// </summary>
         /// <param name="from">点1の位置</param>
         /// <param name="to">点2の位置</param>
-        private void GenerateLine(Vector2 from, Vector2 to)
+        private void GenerateSubLine(Vector2 from, Vector2 to)
         {
-            var line = LineSpawner.SpawnAndGetGameObject();
+            var line = SubLineSpawner.SpawnAndGetGameObject();
             line.GetComponent<Image>().color = m_lineColor;
             var lineRectTransform = line.GetComponent<RectTransform>();
             lineRectTransform.anchorMin = Vector2.zero;
@@ -73,37 +97,88 @@
             lineRectTransform.sizeDelta = new Vector2(distance, 2);
             lineRectTransform.localEulerAngles = new Vector3(0, 0, angle);
             lineRectTransform.anchoredPosition = from + dir * distance * 0.5f;
-            lineRectTransform.SetSiblingIndex((int)SortOrder.LINE);
+            //lineRectTransform.SetSiblingIndex((int)SortOrder.LINE);
+            lineRectTransform.SetAsFirstSibling();
         }
 
-        /// <summary>
-        /// 点の近くに値のラベルを表示する
-        /// </summary>
-        /// <param name="x">X軸方向で何個目か</param>
-        /// <param name="y">Y軸方向の値</param>
-        private void GeneratePointLabel(int x, float y)
-        {
-            var pointLabel = PointLabelSpawner.SpawnAndGetGameObject();
-            var pointLabelText = pointLabel.GetComponent<Text>();
-            pointLabelText.text = y.ToString(); 
-            var offset = new Vector2(0, 8);
-            var pointLabelRectTransform = pointLabel.GetComponent<RectTransform>();
-            pointLabelRectTransform.SetParent(content);
-            pointLabelRectTransform.anchorMin = Vector2.zero;
-            pointLabelRectTransform.anchorMax = Vector2.zero;
-            pointLabelRectTransform.localScale = Vector2.one;
-            pointLabelRectTransform.anchoredPosition =
-                new Vector2((x / settings.valueSpan + 1) * settings.xSize,
-                        y * settings.ySize) + offset;
-            pointLabelRectTransform.SetSiblingIndex((int)SortOrder.LABEL);
-
+        public void ClearUI(){
+            SubLineSpawner.DestroyAllSpawns();
+            PointSpawner.DestroyAllSpawns();
         }
 
-        private enum SortOrder
+        public void ClearData(){
+            valueList.Clear();
+        }
+
+        public void Clear(){
+            ClearUI();
+            ClearData();
+        }
+
+        public void Generate(){
+            ClearUI();
+
+            for (int x = 0; x < valueList.Count; x++)//+= settings.valueSpan)
+            {
+                GenerateConnectedPoint();
+            }
+        }
+
+        public void GenerateConnectedPoint(){
+                var newPoint = GenerateNewPoint();
+
+                // If not first point
+                if (endPoint != null)
+                {
+                    GenerateSubLine(endPoint, newPoint);
+                }
+
+                endPoint = newPoint;
+        }
+
+        public void AddValue(string label, float value){
+            valueList.Add(new KeyValuePair<string, float>(label, value));
+            GenerateConnectedPoint();
+        }
+
+    /// <summary>
+    /// 現在の最大値を取得する
+    /// </summary>
+    /// <returns>最大値</returns>
+        public float GetMaxY()
         {
-            LINE = 0,
-            POINT = 1,
-            LABEL = 2
-        };
+            
+            //return valueList.Max(kv => kv.Value);
+
+            float max = float.MinValue;
+
+            if(valueList.Count == 0)
+            {
+                return settings.yAxisSeparatorSpan;//0;
+            }
+
+            for(int i = 0;i < valueList.Count; i++) //+= settings.valueSpan)
+            {
+                max = Mathf.Max(max, valueList[i].Value);
+            }
+
+            return max;
+        }
+
+        public float GetMinY(){
+            float min = float.MaxValue;
+            if(valueList.Count == 0)
+            {
+                min = 0;
+            }
+
+            for(int i = 0;i < valueList.Count; i++) //+= settings.valueSpan)
+            {
+                min = Mathf.Min(min, valueList[i].Value);
+            }
+
+            return min;
+        }
+
     }
 }

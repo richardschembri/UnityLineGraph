@@ -13,18 +13,29 @@ public class Sample : MonoBehaviour
     {
         lineGraph = GameObject.Find("LineGraph").GetComponent<LineGraphController>();
 
+        var graphLine = lineGraph.AddGraphLine(Color.green, Color.green);
+        var graphLine2 = lineGraph.AddGraphLine(Color.red, Color.red);
+
         settings = LineGraphController.LineGraphSettings.Default;
 
+        for(int i = 0; i < 13; i++){
+            settings.xAxisLabels.Add(string.Format("{0}lbl", i + 1));
+        }
         lineGraph.ChangeSettings(settings);
 
         valueList = new List<float>()
         {
-            5.25f, 10f, 7f, 1f, 20f, 100.5f
+            5.25f, 10f, 7f, 1f, 20f, 100.5f, 50.75f
         };
         for (int i = 0; i < valueList.Count; i++)
         {
-            lineGraph.AddValue((i + 1).ToString(), valueList[i]);
+            var lbl = string.Format("{0}lbl", i);// + 2);
+            //lineGraph.AddValue(lbl, valueList[i]);
+            graphLine.AddValue(lbl.ToString(), valueList[i]); // + 2f);
+            graphLine2.AddValue(lbl.ToString(), valueList[i] + 5f); // + 2f);
         }
+
+        lineGraph.RefreshGraphUI();
 
         lineGraph.SetXUnitText("時間(s)");
         lineGraph.SetYUnitText("個体数");
@@ -57,8 +68,8 @@ public class Sample : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.V))
         {
-            settings.valueSpan = 5;
-            lineGraph.ChangeSettings(settings);
+            //settings.valueSpan = 5;
+            //lineGraph.ChangeSettings(settings);
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
