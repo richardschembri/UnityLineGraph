@@ -309,11 +309,8 @@ public class LineGraphController : MonoBehaviour
     private void FixContentSize()
     {
         Vector2 buffer = new Vector2(10, 10);
-        //float width = (valueList.Count / settings.valueSpan + 1) * settings.xSize;
-        //float width = (settings.xAxisLabels.Count / settings.valueSpan + 1) * settings.xSize;
         float width = (settings.xAxisLabels.Count / 2) * settings.xSize;
-        //float height = ((GetMaxY() + (settings.yAxisSeparatorSpan * 1.75f)) * settings.ySize) + settings.seperatorThickness;
-        int sepCount = Mathf.CeilToInt(GetMaxY() / settings.yAxisSeparatorSpan) + 1;
+        int sepCount = YmarkerContent.SpawnedGameObjects.Count;
         float height = (settings.yAxisSeparatorSpan * sepCount * settings.ySize)
                         - ((settings.yAxisSeparatorSpan / 4) * settings.ySize)
                         + settings.seperatorThickness;
@@ -336,6 +333,15 @@ public class LineGraphController : MonoBehaviour
 
         return max;
     }
+    private float GetSepMaxY(){
+        float sepMax = float.MinValue;
+
+        for (int i = 0; i < GraphLines.Count; i++){
+            sepMax = Mathf.Max(sepMax, GraphLines[i].GetSepMaxY());
+        }
+
+        return sepMax;
+    }
 
     private float GetMinY(){
         float min = float.MaxValue;
@@ -345,6 +351,15 @@ public class LineGraphController : MonoBehaviour
         }
 
         return min;
+    }
+    private float GetSepMinY(){
+        float sepMin = float.MaxValue;
+
+        for (int i = 0; i < GraphLines.Count; i++){
+            sepMin = Mathf.Min(sepMin, GraphLines[i].GetSepMinY());
+        }
+
+        return sepMin;
     }
 
     private void CreateXMarker(int index, string labelText){
@@ -380,11 +395,13 @@ public class LineGraphController : MonoBehaviour
     private void CreateYAxisMarkers()
     {
         YmarkerContent.DestroyAllSpawns();
-        float maxValue = GetMaxY();
-        int seperatorCount = Mathf.CeilToInt(maxValue / settings.yAxisSeparatorSpan);
-        float separatorMax = (float)seperatorCount * settings.yAxisSeparatorSpan;// + (int)settings.yAxisSeparatorSpan;
 
-        for(float y = 0; y <= separatorMax; y += settings.yAxisSeparatorSpan)
+        float sepMaxValue = GetSepMaxY(); //GetMaxY();
+        float sepMinValue = GetSepMinY(); //GetMinY();
+
+        //int seperatorCount = Mathf.CeilToInt((sepMaxValue - sepMinValue) / settings.yAxisSeparatorSpan);
+
+        for(float y = sepMinValue; y <= sepMaxValue; y += settings.yAxisSeparatorSpan)
         {
             string markerName = "YMarker(" + y + ")";
             var yMarker = YmarkerContent.transform.Find(markerName);

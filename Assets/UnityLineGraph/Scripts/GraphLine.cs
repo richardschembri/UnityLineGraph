@@ -164,6 +164,17 @@
 
             return max;
         }
+        public float GetSepMaxY(){
+            float max = GetMaxY();
+            float sepMax = float.MinValue;
+            int sepCount = 0;
+            while (sepMax < max){
+               sepCount++; 
+               sepMax = Mathf.Max(max, sepCount * settings.yAxisSeparatorSpan);
+            }
+
+            return sepMax; // + settings.yAxisSeparatorSpan;
+        }
 
         public float GetMinY(){
             float min = float.MaxValue;
@@ -178,6 +189,18 @@
             }
 
             return min;
+        }
+
+        public float GetSepMinY(){
+            float min = GetMinY();
+            float sepMin = float.MaxValue;
+            int sepCount = 0;
+            while (sepMin > min){
+               sepCount--; 
+               sepMin = Mathf.Min(min, sepCount * settings.yAxisSeparatorSpan);
+            }
+
+            return sepMin; // - settings.yAxisSeparatorSpan;
         }
 
     }

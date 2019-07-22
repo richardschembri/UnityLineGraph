@@ -15,6 +15,7 @@ public class Sample : MonoBehaviour
 
         var graphLine = lineGraph.AddGraphLine(Color.green, Color.green);
         var graphLine2 = lineGraph.AddGraphLine(Color.red, Color.red);
+        var graphLine3 = lineGraph.AddGraphLine(Color.magenta, Color.magenta);
 
         settings = LineGraphController.LineGraphSettings.Default;
 
@@ -32,7 +33,12 @@ public class Sample : MonoBehaviour
             var lbl = string.Format("{0}lbl", i);// + 2);
             //lineGraph.AddValue(lbl, valueList[i]);
             graphLine.AddValue(lbl.ToString(), valueList[i]); // + 2f);
-            graphLine2.AddValue(lbl.ToString(), valueList[i] + 5f); // + 2f);
+
+            var g2Val = Random.Range(valueList[i] - 5f, valueList[i] + 5f); 
+            graphLine2.AddValue(lbl.ToString(), (float)System.Math.Round(g2Val, 2)); // + 2f);
+
+            var g3Val = Random.Range(valueList[i] - 10f, valueList[i] + 10f); 
+            graphLine3.AddValue(lbl.ToString(), (float)System.Math.Round(g3Val, 2)); // + 2f);
         }
 
         lineGraph.RefreshGraphUI();
