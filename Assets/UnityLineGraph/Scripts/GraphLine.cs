@@ -55,21 +55,20 @@
         /// <returns>The new dot.</returns>
         /// <param name="index">X軸方向で何個目か</param>
         /// <param name="value">Y軸方向の値</param>
-        private GraphPoint GenerateNewPoint()
+        private GraphPoint GenerateNewPoint(float offsetY = 0, int index = -1)
         {
-            
+            int plv_index = m_EndPointIndex;
+            if(index > -1){
+                plv_index = index;
+            }
+            var plv = valueList[plv_index];
             var point = PointSpawner.SpawnAndGetGameObject().GetComponent<GraphPoint>();
-            /*
-            var pointPosition = 
-                new Vector2((m_EndPointIndex / settings.valueSpan + 1) * settings.xSize,
-                        m_EndPointLabelValue.Value * settings.ySize);
-            */
-            var pointX = ((m_EndPointIndex + 1 / 2) * settings.xSize) + settings.xSize;
+            var pointX = ((plv_index + 1 / 2) * settings.xSize) + settings.xSize;
             var pointPosition = 
                 new Vector2(pointX,
-                        m_EndPointLabelValue.Value * settings.ySize);
+                        (plv.Value - offsetY)  * settings.ySize);
 
-            point.Set(m_EndPointLabelValue.Key, m_EndPointLabelValue.Value, pointPosition, m_pointColor);
+            point.Set(plv.Key, plv.Value, pointPosition, m_pointColor);
 
             return point;
         }
@@ -115,17 +114,17 @@
             ClearData();
         }
 
-        public void Generate(){
+        public void Generate(float offsetY = 0){
             ClearUI();
 
             for (int x = 0; x < valueList.Count; x++)//+= settings.valueSpan)
             {
-                GenerateConnectedPoint();
+                GenerateConnectedPoint(offsetY, x);
             }
         }
 
-        public void GenerateConnectedPoint(){
-                var newPoint = GenerateNewPoint();
+        public void GenerateConnectedPoint(float offsetY = 0, int index = -1){
+                var newPoint = GenerateNewPoint(offsetY, index);
 
                 // If not first point
                 if (endPoint != null)
@@ -138,7 +137,11 @@
 
         public void AddValue(string label, float value){
             valueList.Add(new KeyValuePair<string, float>(label, value));
-            GenerateConnectedPoint();
+        }
+
+        public void AddAndGenerateValue(string label, float value, float offsetY){
+            AddValue(label, value);
+            GenerateConnectedPoint(offsetY);
         }
 
     /// <summary>

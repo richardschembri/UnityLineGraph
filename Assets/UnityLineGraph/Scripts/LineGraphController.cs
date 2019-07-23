@@ -490,6 +490,10 @@ public class LineGraphController : MonoBehaviour
         FixContentSize();
 
         UpdateMakersPosition();
+
+        for(int i = 0; i < GraphLines.Count; i++){
+            GraphLines[i].Generate(GetSepMinY());
+        }
     }
 
     public void CreateXAxisMarkers(){
