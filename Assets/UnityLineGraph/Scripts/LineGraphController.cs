@@ -450,6 +450,9 @@ public class LineGraphController : MonoBehaviour
         for(int i = 0; i < GraphLines.Count; i++){
             GraphLines[i].Generate(GetSepMinY());
         }
+        if(GraphLines.Any()){
+            CapturePoint(GraphLines[0].EndPoint.AnchoredPosition);
+        }
     }
 
     public void CreateXAxisMarkers(){

@@ -18,7 +18,7 @@
         public Spawner PointSpawner;
         public Spawner SubLineSpawner;
 
-        private GraphPoint endPoint;
+        public GraphPoint EndPoint{get; private set;}
         public class OnValueAddedEvent : UnityEvent<float, float> {}
         public OnValueAddedEvent OnValueAdded = new OnValueAddedEvent();        
 /* 
@@ -127,12 +127,12 @@
                 var newPoint = GenerateNewPoint(offsetY, index);
 
                 // If not first point
-                if (endPoint != null)
+                if (EndPoint != null)
                 {
-                    GenerateSubLine(endPoint, newPoint);
+                    GenerateSubLine(EndPoint, newPoint);
                 }
 
-                endPoint = newPoint;
+                EndPoint = newPoint;
         }
 
         public void AddValue(string label, float value){
