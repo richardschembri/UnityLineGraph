@@ -13,7 +13,9 @@
         private Color m_pointColor;
         private List<KeyValuePair<string, float>> valueList = new List<KeyValuePair<string, float>>();
         private Color m_lineColor;
-        public LineGraphController.LineGraphSettings settings;
+        //public LineGraphController.LineGraphSettings settings;
+
+        public LineGraphController parentController;
 
         public Spawner PointSpawner;
         public Spawner SubLineSpawner;
@@ -63,10 +65,9 @@
             }
             var plv = valueList[plv_index];
             var point = PointSpawner.SpawnAndGetGameObject().GetComponent<GraphPoint>();
-            var pointX = ((plv_index + 1 / 2) * settings.xSize) + settings.xSize;
-            var pointPosition = 
-                new Vector2(pointX,
-                        (plv.Value - offsetY)  * settings.ySize);
+            var pointX = ((plv_index + 1 / 2) * parentController.Settings.xSize) + parentController.Settings.xSize;
+            var pointY = (plv.Value - offsetY)  * parentController.Settings.ySize;
+            var pointPosition = new Vector2(pointX, pointY);
 
             point.Set(plv.Key, plv.Value, pointPosition, m_pointColor);
 
@@ -157,7 +158,7 @@
 
             if(valueList.Count == 0)
             {
-                return settings.yAxisSeparatorSpan;//0;
+                return parentController.Settings.yAxisSeparatorSpan;//0;
             }
 
             for(int i = 0;i < valueList.Count; i++) //+= settings.valueSpan)
@@ -170,13 +171,13 @@
         public float GetSepMaxY(){
             float max = GetMaxY();
             float sepMax = float.MinValue;
-            int sepCount = (int)(max / settings.yAxisSeparatorSpan);
+            int sepCount = (int)(max / parentController.Settings.yAxisSeparatorSpan);
             while (sepMax < max){
-               sepMax = Mathf.Max(max, sepCount * settings.yAxisSeparatorSpan);
+               sepMax = Mathf.Max(max, sepCount * parentController.Settings.yAxisSeparatorSpan);
                sepCount++; 
             }
 
-            return sepMax + settings.yAxisSeparatorSpan;
+            return sepMax + parentController.Settings.yAxisSeparatorSpan;
         }
 
         public float GetMinY(){
@@ -197,13 +198,13 @@
         public float GetSepMinY(){
             float min = GetMinY();
             float sepMin = float.MaxValue;
-            int sepCount = (int)(min / settings.yAxisSeparatorSpan);
+            int sepCount = (int)(min / parentController.Settings.yAxisSeparatorSpan);
             while (sepMin > min){
-               sepMin = Mathf.Min(min, sepCount * settings.yAxisSeparatorSpan);
+               sepMin = Mathf.Min(min, sepCount * parentController.Settings.yAxisSeparatorSpan);
                sepCount--; 
             }
 
-            return sepMin - settings.yAxisSeparatorSpan;
+            return sepMin - parentController.Settings.yAxisSeparatorSpan;
         }
 
     }

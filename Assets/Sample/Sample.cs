@@ -13,11 +13,12 @@ public class Sample : MonoBehaviour
     {
         lineGraph = GameObject.Find("LineGraph").GetComponent<LineGraphController>();
 
+        settings = LineGraphController.LineGraphSettings.Default;
+        //settings.xSize = 95;
+
         var graphLine = lineGraph.AddGraphLine(Color.green, Color.green);
         var graphLine2 = lineGraph.AddGraphLine(Color.red, Color.red);
         var graphLine3 = lineGraph.AddGraphLine(Color.magenta, Color.magenta);
-
-        settings = LineGraphController.LineGraphSettings.Default;
 
         for(int i = 0; i < 13; i++){
             settings.xAxisLabels.Add(string.Format("{0}lbl", i + 1));

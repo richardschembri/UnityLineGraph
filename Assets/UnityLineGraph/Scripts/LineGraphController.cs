@@ -27,7 +27,7 @@ public class LineGraphController : MonoBehaviour
     private GameObject xUnitLabel;
     private GameObject yUnitLabel;
 
-    private LineGraphSettings settings;
+    public LineGraphSettings Settings{get; private set;}
     private GameObject previousDot;
 
     private List<KeyValuePair<string, float>> valueList;
@@ -86,7 +86,7 @@ public class LineGraphController : MonoBehaviour
         xUnitLabel = this.transform.Find("X Unit Label").gameObject;
         yUnitLabel = this.transform.Find("Y Unit Label").gameObject;
         valueList = new List<KeyValuePair<string, float>>();
-        settings = LineGraphSettings.Default;
+        Settings = LineGraphSettings.Default;
     }
 
     private void Start()
@@ -128,7 +128,7 @@ public class LineGraphController : MonoBehaviour
             CreateYAxisMarkers();
             UpdateMakersPosition();
 
-            if (settings.autoScroll)
+            if (Settings.autoScroll)
             {
                 RectTransform rect = dot.GetComponent<RectTransform>();
 
@@ -181,7 +181,7 @@ public class LineGraphController : MonoBehaviour
     /// <param name="settings">Parameter.</param>
     public void ChangeSettings(LineGraphSettings settings)
     {
-        this.settings = settings;
+        this.Settings = settings;
     }
 
     private Spawner m_graphLineSpawner;
@@ -196,14 +196,15 @@ public class LineGraphController : MonoBehaviour
 
     public GraphLine AddGraphLine(Color lineColor, Color pointColor){
         var graphLine = m_GraphLineSpawner.SpawnAndGetGameObject().GetComponent<GraphLine>();
-        graphLine.settings = settings;
+        //graphLine.settings = Settings;
+        graphLine.parentController = this;
         graphLine.SetColors(lineColor, pointColor);
         return graphLine;
     }
 
     public LineGraphSettings GetParameter()
     {
-        return settings;
+        return Settings;
     }
 
     /// <summary>
@@ -227,7 +228,7 @@ public class LineGraphController : MonoBehaviour
         Image image = dot.GetComponent<Image>();
         image.useSpriteMesh = true;
         image.sprite = dotSprite;
-        image.color = settings.dotColor;
+        image.color = Settings.dotColor;
         RectTransform rectTransform = dot.GetComponent<RectTransform>();
         rectTransform.SetParent(content);
         rectTransform.anchorMin = Vector2.zero;
@@ -240,8 +241,8 @@ public class LineGraphController : MonoBehaviour
                     value * settings.ySize);
         */
         rectTransform.anchoredPosition =
-            new Vector2((index / 2) * settings.xSize,
-                    value * settings.ySize);
+            new Vector2((index / 2) * Settings.xSize,
+                    value * Settings.ySize);
         rectTransform.SetSiblingIndex((int)ZOrder.DOT);
 
         return dot;
@@ -255,7 +256,7 @@ public class LineGraphController : MonoBehaviour
     private void CreateConnection(Vector2 pos1, Vector2 pos2)
     {
         GameObject connection = new GameObject("connection", typeof(Image));
-        connection.GetComponent<Image>().color = settings.connectionColor;
+        connection.GetComponent<Image>().color = Settings.connectionColor;
         RectTransform rectTransform = connection.GetComponent<RectTransform>();
         rectTransform.SetParent(content);
         rectTransform.anchorMin = Vector2.zero;
@@ -298,8 +299,8 @@ public class LineGraphController : MonoBehaviour
                     y * settings.ySize) + offset;
         */
         rectTransform.anchoredPosition =
-            new Vector2((x / 2) * settings.xSize,
-                    y * settings.ySize) + offset;
+            new Vector2((x / 2) * Settings.xSize,
+                    y * Settings.ySize) + offset;
         rectTransform.SetSiblingIndex((int)ZOrder.LABEL);
     }
 
@@ -309,11 +310,12 @@ public class LineGraphController : MonoBehaviour
     private void FixContentSize()
     {
         Vector2 buffer = new Vector2(10, 10);
-        float width = (settings.xAxisLabels.Count / 2) * settings.xSize;
+        ///float width = (Settings.xAxisLabels.Count / 2) * Settings.xSize;
+        float width = Settings.xAxisLabels.Count * Settings.xSize;
         int sepCount = YmarkerContent.SpawnedGameObjects.Count;
-        float height = (settings.yAxisSeparatorSpan * sepCount * settings.ySize)
-                        - ((settings.yAxisSeparatorSpan / 4) * settings.ySize)
-                        + settings.seperatorThickness;
+        float height = (Settings.yAxisSeparatorSpan * sepCount * Settings.ySize)
+                        - ((Settings.yAxisSeparatorSpan / 4) * Settings.ySize)
+                        + Settings.seperatorThickness;
 
         content.sizeDelta = new Vector2(width, height) + buffer;
         YmarkerContent.GetComponent<RectTransform>().sizeDelta = new Vector2(YmarkerContent.GetComponent<RectTransform>().sizeDelta.x, content.sizeDelta.y);
@@ -370,7 +372,7 @@ public class LineGraphController : MonoBehaviour
 
         var marker = XmarkerContent.SpawnAndGetGameObject().GetComponent<XMarker>();
         marker.SetLabelText(labelText);
-        XmarkerContent.GetComponent<RectTransform>().sizeDelta = new Vector2((index + 1) * settings.xSize, 0);
+        XmarkerContent.GetComponent<RectTransform>().sizeDelta = new Vector2((index + 1) * Settings.xSize, 0);
 
         marker.name = markerName;
     }
@@ -401,7 +403,7 @@ public class LineGraphController : MonoBehaviour
 
         //int seperatorCount = Mathf.CeilToInt((sepMaxValue - sepMinValue) / settings.yAxisSeparatorSpan);
 
-        for(float y = sepMinValue; y <= sepMaxValue; y += settings.yAxisSeparatorSpan)
+        for(float y = sepMinValue; y <= sepMaxValue; y += Settings.yAxisSeparatorSpan)
         {
             string markerName = "YMarker(" + y + ")";
             var yMarker = YmarkerContent.transform.Find(markerName);
@@ -422,7 +424,7 @@ public class LineGraphController : MonoBehaviour
     private void UpdateMakersPosition()
     {
         Vector2 contentPosition = content.anchoredPosition;
-        YmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(YmarkerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + settings.seperatorThickness);
+        YmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(YmarkerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + Settings.seperatorThickness);
         XmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(content.anchoredPosition.x,  XmarkerContent.GetComponent<RectTransform>().anchoredPosition.y);
 
     }
@@ -457,9 +459,9 @@ public class LineGraphController : MonoBehaviour
 
     public void CreateXAxisMarkers(){
         XmarkerContent.DestroyAllSpawns();
-        for (int x = 0; x < settings.xAxisLabels.Count; x++) // += settings.valueSpan)
+        for (int x = 0; x < Settings.xAxisLabels.Count; x++) // += settings.valueSpan)
         {
-            CreateXMarker(x, settings.xAxisLabels[x]);
+            CreateXMarker(x, Settings.xAxisLabels[x]);
         }
     }
     /// <summary>
@@ -493,7 +495,7 @@ public class LineGraphController : MonoBehaviour
         }
 
         content.localPosition = contentPosition;
-        YmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(YmarkerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + settings.seperatorThickness);
+        YmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(YmarkerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + Settings.seperatorThickness);
     }
 }
 }
