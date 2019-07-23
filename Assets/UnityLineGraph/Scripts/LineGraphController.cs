@@ -401,7 +401,7 @@ public class LineGraphController : MonoBehaviour
 
         //int seperatorCount = Mathf.CeilToInt((sepMaxValue - sepMinValue) / settings.yAxisSeparatorSpan);
 
-        for(float y = sepMinValue; y <= sepMaxValue + settings.yAxisSeparatorSpan; y += settings.yAxisSeparatorSpan)
+        for(float y = sepMinValue; y <= sepMaxValue; y += settings.yAxisSeparatorSpan)
         {
             string markerName = "YMarker(" + y + ")";
             var yMarker = YmarkerContent.transform.Find(markerName);
@@ -431,51 +431,7 @@ public class LineGraphController : MonoBehaviour
        valueList.Clear();
        RefreshGraphUI();
    } 
-/*
-    /// <summary>
-    /// グラフの表示を更新する
-    /// </summary>
-    public void RefreshGraphUI()
-    {
-        for (int i = 0; i < content.childCount; i++)
-        {
-            //Destroy(content.GetChild(i).gameObject);
-        }
 
-        previousDot = null;
-        YmarkerContent.DestroyAllSpawns();
-        XmarkerContent.DestroyAllSpawns();
-
-        for (int x = 0; x < valueList.Count; x += settings.valueSpan)
-        {
-            string label = valueList[x].Key;
-            float y = valueList[x].Value;
-            GameObject dot = CreateNewDot(x, y);
-
-            if (previousDot != null)
-            {
-                RectTransform rectTransform1 =
-                    previousDot.GetComponent<RectTransform>();
-                RectTransform rectTransform2 =
-                    dot.GetComponent<RectTransform>();
-
-                CreateConnection(
-                        rectTransform1.anchoredPosition,
-                        rectTransform2.anchoredPosition);
-            }
-
-            CreateValueLabelByDot(x, y);
-            CreateXMarker(x, label);
-
-            previousDot = dot;
-        }
-        FixContentSize();
-
-        // Yセパレータの更新
-        CreateYAxisSeparatorFitGraph();
-        FixLabelAndAxisSeparatorPosition();
-    }
- */
     /// <summary>
     /// グラフの表示を更新する
     /// </summary>

@@ -26,7 +26,8 @@ public class Sample : MonoBehaviour
 
         valueList = new List<float>()
         {
-            5.25f, 10f, 7f, 1f, 20f, 100.5f, 50.75f
+            //5.25f, 10f, 7f, 1f, 20f, 100.5f, 50.75f
+            55.25f, 60f, 57f, 51f, 70f, 150.5f, 100.75f
         };
         for (int i = 0; i < valueList.Count; i++)
         {
