@@ -311,7 +311,7 @@ public class LineGraphController : MonoBehaviour
     {
         Vector2 buffer = new Vector2(10, 10);
         ///float width = (Settings.xAxisLabels.Count / 2) * Settings.xSize;
-        float width = Settings.xAxisLabels.Count * Settings.xSize;
+        float width = (Settings.xAxisLabels.Count + 1) * Settings.xSize;
         int sepCount = YmarkerContent.SpawnedGameObjects.Count;
         float height = (Settings.yAxisSeparatorSpan * sepCount * Settings.ySize)
                         - ((Settings.yAxisSeparatorSpan / 4) * Settings.ySize)
