@@ -401,7 +401,7 @@ public class LineGraphController : MonoBehaviour
 
         //int seperatorCount = Mathf.CeilToInt((sepMaxValue - sepMinValue) / settings.yAxisSeparatorSpan);
 
-        for(float y = sepMinValue; y <= sepMaxValue; y += settings.yAxisSeparatorSpan)
+        for(float y = sepMinValue; y <= sepMaxValue + settings.yAxisSeparatorSpan; y += settings.yAxisSeparatorSpan)
         {
             string markerName = "YMarker(" + y + ")";
             var yMarker = YmarkerContent.transform.Find(markerName);
