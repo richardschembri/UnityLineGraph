@@ -110,6 +110,7 @@
 
         public void ClearData(){
             valueList.Clear();
+            EndPoint = null;
         }
 
         public void Clear(){
