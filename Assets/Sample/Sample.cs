@@ -32,15 +32,14 @@ public class Sample : MonoBehaviour
         };
         for (int i = 0; i < valueList.Count; i++)
         {
-            var lbl = string.Format("{0}lbl", i);// + 2);
-            //lineGraph.AddValue(lbl, valueList[i]);
-            graphLine.AddValue(lbl.ToString(), valueList[i]); // + 2f);
+            var lbl = string.Format("{0}lbl", i);
+            graphLine.AddValue(lbl.ToString(), valueList[i]); 
 
             var g2Val = Random.Range(valueList[i] - 5f, valueList[i] + 5f); 
-            graphLine2.AddValue(lbl.ToString(), (float)System.Math.Round(g2Val, 2)); // + 2f);
+            graphLine2.AddValue(lbl.ToString(), (float)System.Math.Round(g2Val, 2));
 
             var g3Val = Random.Range(valueList[i] - 10f, valueList[i] + 10f); 
-            graphLine3.AddValue(lbl.ToString(), (float)System.Math.Round(g3Val, 2)); // + 2f);
+            graphLine3.AddValue(lbl.ToString(), (float)System.Math.Round(g3Val, 2));
         }
 
         lineGraph.RefreshGraphUI();

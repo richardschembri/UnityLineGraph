@@ -495,7 +495,8 @@ public class LineGraphController : MonoBehaviour
         }
 
         content.localPosition = contentPosition;
-        YmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(YmarkerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + Settings.seperatorThickness);
+        //YmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(YmarkerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + Settings.seperatorThickness);
+        UpdateMakersPosition();
     }
 }
 }
