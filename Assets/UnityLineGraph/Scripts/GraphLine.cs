@@ -67,7 +67,7 @@
             var lbl_index = parentController.Settings.xAxisLabels.IndexOf(plv.Key);
             var point = PointSpawner.SpawnAndGetGameObject().GetComponent<GraphPoint>();
             //var pointX = ((plv_index + 1 / 2) * parentController.Settings.xSize) + parentController.Settings.xSize;
-            var pointX = ((lbl_index + 2 / 2) * parentController.Settings.xSize) + parentController.Settings.xSize;
+            var pointX = ((lbl_index + 1 / 2) * parentController.Settings.xSize) + parentController.Settings.xSize;
             var pointY = (plv.Value - offsetY)  * parentController.Settings.ySize;
             var pointPosition = new Vector2(pointX, pointY);
 

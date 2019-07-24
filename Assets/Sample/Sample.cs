@@ -32,7 +32,7 @@ public class Sample : MonoBehaviour
         };
         for (int i = 0; i < valueList.Count; i++)
         {
-            var lbl = string.Format("{0}lbl", i);
+            var lbl = string.Format("{0}lbl", i + 1);
             graphLine.AddValue(lbl.ToString(), valueList[i]); 
 
             var g2Val = Random.Range(valueList[i] - 5f, valueList[i] + 5f); 
