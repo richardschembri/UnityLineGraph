@@ -37,9 +37,10 @@ public class Sample : MonoBehaviour
 
             var g2Val = Random.Range(valueList[i] - 5f, valueList[i] + 5f); 
             graphLine2.AddValue(lbl.ToString(), (float)System.Math.Round(g2Val, 2));
-
-            var g3Val = Random.Range(valueList[i] - 10f, valueList[i] + 10f); 
-            graphLine3.AddValue(lbl.ToString(), (float)System.Math.Round(g3Val, 2));
+            if(i > 0 && i % 2 == 0){
+                var g3Val = Random.Range(valueList[i] - 10f, valueList[i] + 10f); 
+                graphLine3.AddValue(lbl.ToString(), (float)System.Math.Round(g3Val, 2));
+            }
         }
 
         lineGraph.RefreshGraphUI();
