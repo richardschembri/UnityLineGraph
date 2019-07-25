@@ -235,7 +235,10 @@
         /// ある点をグラフの中央になるようにスクロールする
         /// </summary>
         public void ScrollToPoint(GraphPoint point)
-        {
+        { 
+            if(point == null){
+                return;
+            } 
             Vector2 viewportSize =
                 new Vector2(viewport.rect.width, viewport.rect.height);
             Vector2 contentSize =
