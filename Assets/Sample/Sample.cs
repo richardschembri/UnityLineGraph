@@ -6,26 +6,20 @@ using UnityLineGraph;
 public class Sample : MonoBehaviour
 {
     LineGraphController lineGraph;
-    List<float> valueList;
-    LineGraphController.LineGraphSettings settings;
 
     void Start()
     {
         lineGraph = GameObject.Find("LineGraph").GetComponent<LineGraphController>();
-
-        settings = LineGraphController.LineGraphSettings.Default;
-        //settings.xSize = 95;
 
         var graphLine = lineGraph.AddGraphLine(Color.green, Color.green);
         var graphLine2 = lineGraph.AddGraphLine(Color.red, Color.red);
         var graphLine3 = lineGraph.AddGraphLine(Color.magenta, Color.magenta);
 
         for(int i = 0; i < 13; i++){
-            settings.xAxisLabels.Add(string.Format("{0}lbl", i + 1));
+            lineGraph.xAxisLabels.Add(string.Format("{0}lbl", i + 1));
         }
-        lineGraph.ChangeSettings(settings);
 
-        valueList = new List<float>()
+        var valueList = new List<float>()
         {
             //5.25f, 10f, 7f, 1f, 20f, 100.5f, 50.75f
             55.25f, 60f, 57f, 51f, 70f, 150.5f, 100.75f
@@ -49,51 +43,44 @@ public class Sample : MonoBehaviour
         lineGraph.SetYUnitText("個体数");
     }
 
+    public void RefreshGraph(){
+        
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
             int value = Random.Range(0, 300);
-
-            valueList.Add(value);
-            lineGraph.AddValue(valueList.Count.ToString(), value);
+            lineGraph.GraphLines[0].AddAndGenerateValue(string.Format("{0}lbl", lineGraph.xAxisLabels.Count + 1), value);
         }
-
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            settings.xSize = 10;
-            lineGraph.ChangeSettings(settings);
+            lineGraph.xSize = 10;
         }
         if (Input.GetKeyDown(KeyCode.X))
         {
-            settings.ySize = 1;
-            lineGraph.ChangeSettings(settings);
+            lineGraph.ySize = 1;
         }
         if (Input.GetKeyDown(KeyCode.C))
         {
-            settings.yAxisSeparatorSpan = 50;
-            lineGraph.ChangeSettings(settings);
+            lineGraph.yAxisValueSpan = 50;
         }
         if (Input.GetKeyDown(KeyCode.V))
         {
-            //settings.valueSpan = 5;
-            //lineGraph.ChangeSettings(settings);
+            lineGraph.yAxisValueSpan = 5;
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
             Color blue = Color.blue;
-            settings.dotColor = blue;
             blue.a = 0.5f;
-            settings.connectionColor = blue;
-            lineGraph.ChangeSettings(settings);
+            lineGraph.GraphLines[0].SetColors(blue);
         }
         if (Input.GetKeyDown(KeyCode.A))
         {
-            settings = LineGraphController.LineGraphSettings.Default;
-            lineGraph.ChangeSettings(settings);
+            lineGraph.ResetSettings();
         }
         if(Input.GetKeyUp(KeyCode.R)){
-            valueList.Clear();
             lineGraph.ClearGraph();
         }
     }

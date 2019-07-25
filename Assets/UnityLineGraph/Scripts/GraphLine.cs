@@ -23,17 +23,7 @@
         public GraphPoint EndPoint{get; private set;}
         public class OnValueAddedEvent : UnityEvent<float, float> {}
         public OnValueAddedEvent OnValueAdded = new OnValueAddedEvent();        
-/* 
-        private LineGraphController m_parentController;
-        public LineGraphController ParentController{
-            get{
-                return m_parentController;
-            }
-            set{
-                m_parentController = value;
-            }
-        }
-*/
+
         private int m_EndPointIndex{
             get{
                 return valueList.Count - 1;
@@ -46,6 +36,9 @@
             }
         }
 
+        public void SetColors(Color color){
+            SetColors(color, color);
+        }
         public void SetColors(Color lineColor, Color pointColor){
             m_lineColor = lineColor;
             m_pointColor = pointColor;
@@ -57,18 +50,18 @@
         /// <returns>The new dot.</returns>
         /// <param name="index">X軸方向で何個目か</param>
         /// <param name="value">Y軸方向の値</param>
-        private GraphPoint GenerateNewPoint(float offsetY = 0, int index = -1)
+        private GraphPoint GenerateNewPoint(int index = -1)
         {
             int plv_index = m_EndPointIndex;
             if(index > -1){
                 plv_index = index;
             }
             var plv = valueList[plv_index];
-            var lbl_index = parentController.Settings.xAxisLabels.IndexOf(plv.Key);
+            var lbl_index = parentController.xAxisLabels.IndexOf(plv.Key);
             var point = PointSpawner.SpawnAndGetGameObject().GetComponent<GraphPoint>();
             //var pointX = ((plv_index + 1 / 2) * parentController.Settings.xSize) + parentController.Settings.xSize;
-            var pointX = ((lbl_index + 1 / 2) * parentController.Settings.xSize) + parentController.Settings.xSize;
-            var pointY = (plv.Value - offsetY)  * parentController.Settings.ySize;
+            var pointX = ((lbl_index + 1 / 2) * parentController.xSize) + parentController.xSize;
+            var pointY = (plv.Value - parentController.OffsetY)  * parentController.ySize;
             var pointPosition = new Vector2(pointX, pointY);
 
             point.Set(plv.Key, plv.Value, pointPosition, m_pointColor);
@@ -118,17 +111,17 @@
             ClearData();
         }
 
-        public void Generate(float offsetY = 0){
+        public void Generate(){
             ClearUI();
 
             for (int x = 0; x < valueList.Count; x++)//+= settings.valueSpan)
             {
-                GenerateConnectedPoint(offsetY, x);
+                GenerateConnectedPoint(x);
             }
         }
 
-        public void GenerateConnectedPoint(float offsetY = 0, int index = -1){
-                var newPoint = GenerateNewPoint(offsetY, index);
+        public void GenerateConnectedPoint(int index = -1){
+                var newPoint = GenerateNewPoint(index);
 
                 // If not first point
                 if (EndPoint != null)
@@ -143,9 +136,9 @@
             valueList.Add(new KeyValuePair<string, float>(label, value));
         }
 
-        public void AddAndGenerateValue(string label, float value, float offsetY){
+        public void AddAndGenerateValue(string label, float value){
             AddValue(label, value);
-            GenerateConnectedPoint(offsetY);
+            GenerateConnectedPoint();
         }
 
     /// <summary>
@@ -161,7 +154,7 @@
 
             if(valueList.Count == 0)
             {
-                return parentController.Settings.yAxisSeparatorSpan;//0;
+                return parentController.yAxisValueSpan;//0;
             }
 
             for(int i = 0;i < valueList.Count; i++) //+= settings.valueSpan)
@@ -174,13 +167,13 @@
         public float GetSepMaxY(){
             float max = GetMaxY();
             float sepMax = float.MinValue;
-            int sepCount = (int)(max / parentController.Settings.yAxisSeparatorSpan);
+            int sepCount = (int)(max / parentController.yAxisValueSpan);
             while (sepMax < max){
-               sepMax = Mathf.Max(max, sepCount * parentController.Settings.yAxisSeparatorSpan);
+               sepMax = Mathf.Max(max, sepCount * parentController.yAxisValueSpan);
                sepCount++; 
             }
 
-            return sepMax + parentController.Settings.yAxisSeparatorSpan;
+            return sepMax + parentController.yAxisValueSpan;
         }
 
         public float GetMinY(){
@@ -201,13 +194,13 @@
         public float GetSepMinY(){
             float min = GetMinY();
             float sepMin = float.MaxValue;
-            int sepCount = (int)(min / parentController.Settings.yAxisSeparatorSpan);
+            int sepCount = (int)(min / parentController.yAxisValueSpan);
             while (sepMin > min){
-               sepMin = Mathf.Min(min, sepCount * parentController.Settings.yAxisSeparatorSpan);
+               sepMin = Mathf.Min(min, sepCount * parentController.yAxisValueSpan);
                sepCount--; 
             }
 
-            return sepMin - parentController.Settings.yAxisSeparatorSpan;
+            return sepMin - parentController.yAxisValueSpan;
         }
 
     }
