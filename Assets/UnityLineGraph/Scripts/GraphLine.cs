@@ -24,6 +24,20 @@
         public class OnValueAddedEvent : UnityEvent<float, float> {}
         public OnValueAddedEvent OnValueAdded = new OnValueAddedEvent();        
 
+        private float m_LineThickness = 2f;
+        public float LineThickness{
+            get{
+                return m_LineThickness;
+            } set{
+                m_LineThickness = value;
+                var sublines = SubLineSpawner.SpawnedGameObjects;
+                for (int i = 0; i < sublines.Count; i++){
+                    var rt = sublines[i].GetComponent<RectTransform>();
+                    rt.sizeDelta = new Vector2(rt.sizeDelta.x, m_LineThickness);
+                }
+            }
+        }
+
         private int m_EndPointIndex{
             get{
                 return valueList.Count - 1;
@@ -116,7 +130,7 @@
             Vector2 dir = (to - from).normalized;
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
             float distance = Vector2.Distance(from, to);
-            lineRectTransform.sizeDelta = new Vector2(distance, 2);
+            lineRectTransform.sizeDelta = new Vector2(distance, LineThickness);
             lineRectTransform.localEulerAngles = new Vector3(0, 0, angle);
             lineRectTransform.anchoredPosition = from + dir * distance * 0.5f;
             //lineRectTransform.SetSiblingIndex((int)SortOrder.LINE);

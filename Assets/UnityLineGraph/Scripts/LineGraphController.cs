@@ -41,7 +41,7 @@
         public float ySize = 5f;
         public float yAxisValueSpan = 10f;
         public bool AutoScroll = true;
-        public float seperatorThickness = 2f;
+        public float SeperatorThickness = 2f;
         public List<string> xAxisLabels;
 
         private float m_OffsetY = 0f;
@@ -60,7 +60,7 @@
             ySize = 5f;
             yAxisValueSpan = 10f;
             AutoScroll = true;
-            seperatorThickness = 2f;
+            SeperatorThickness = 2f;
         }
 
         private void Awake()
@@ -139,7 +139,7 @@
             int sepCount = YmarkerContent.SpawnedGameObjects.Count;
             float height = (yAxisValueSpan * sepCount * ySize)
                             - ((yAxisValueSpan / 4) * ySize)
-                            + seperatorThickness;
+                            + SeperatorThickness;
 
             content.sizeDelta = new Vector2(width, height) + buffer;
             YmarkerContent.GetComponent<RectTransform>().sizeDelta = new Vector2(YmarkerContent.GetComponent<RectTransform>().sizeDelta.x, content.sizeDelta.y);
@@ -196,7 +196,7 @@
         private void UpdateMakersPosition()
         {
             Vector2 contentPosition = content.anchoredPosition;
-            YmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(YmarkerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + seperatorThickness);
+            YmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(YmarkerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + SeperatorThickness);
             XmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(content.anchoredPosition.x,  XmarkerContent.GetComponent<RectTransform>().anchoredPosition.y);
 
         }
