@@ -29,8 +29,6 @@
 
         private GameObject previousDot;
 
-        private List<KeyValuePair<string, float>> valueList;
-
         public List<GraphLine> GraphLines{
             get{
                 return m_GraphLineSpawner.SpawnedGameObjects.Select(gl => gl.GetComponent<GraphLine>()).ToList();
@@ -69,7 +67,6 @@
             content = viewport.Find("Content") as RectTransform;
             xUnitLabel = this.transform.Find("X Unit Label").gameObject;
             yUnitLabel = this.transform.Find("Y Unit Label").gameObject;
-            valueList = new List<KeyValuePair<string, float>>();
         }
 
         private void Start()
@@ -202,8 +199,12 @@
         }
 
     public void ClearGraph(){
-        valueList.Clear();
-        RefreshGraphUI();
+        for(int i = 0; i < GraphLines.Count; i++){
+            GraphLines[i].Clear();
+        }
+        
+        XmarkerContent.DestroyAllSpawns();
+        YmarkerContent.DestroyAllSpawns();
     } 
 
         /// <summary>

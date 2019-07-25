@@ -66,6 +66,10 @@ public class Sample : MonoBehaviour
         lineGraph.RefreshGraphUI();
     }
 
+    public void ClearGraph(){
+        lineGraph.ClearGraph();
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
