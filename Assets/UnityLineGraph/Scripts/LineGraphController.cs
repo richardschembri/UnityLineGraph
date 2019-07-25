@@ -108,6 +108,9 @@
             }
         }
 
+        public GraphLine AddGraphLine(Color color){
+            return AddGraphLine(color, color);
+        }
         public GraphLine AddGraphLine(Color lineColor, Color pointColor){
             var graphLine = m_GraphLineSpawner.SpawnAndGetGameObject().GetComponent<GraphLine>();
             //graphLine.settings = Settings;

@@ -67,7 +67,7 @@ public class GraphPoint : MonoBehaviour
     }
 
     public void Set(string key, float value, Vector2 position, Color color){
-        m_ImageComponent.color = color;
+        SetColor(color);
         m_RectTransform.anchorMin = Vector2.zero;
         m_RectTransform.anchorMax = Vector2.zero;
         m_RectTransform.localScale = Vector2.one;
@@ -76,5 +76,13 @@ public class GraphPoint : MonoBehaviour
         name = string.Format("GraphPoint({0})", value);
         Key = key;
         Value = value;
+    }
+
+    public void SetColor(Color color){
+        m_ImageComponent.color = color;
+    }
+
+    public void ShowLabel(bool show){
+        Label.gameObject.SetActive(show);
     }
 }

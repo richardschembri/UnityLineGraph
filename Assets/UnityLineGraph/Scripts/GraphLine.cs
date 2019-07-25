@@ -36,12 +36,38 @@
             }
         }
 
+        private bool m_ShowLabels = true;
+        public bool ShowLabels{
+            get{
+                return m_ShowLabels;
+            }
+            set{
+                m_ShowLabels = value;
+                var points = PointSpawner.SpawnedGameObjects;
+                for (int i = 0; i < points.Count; i++){
+                    var gp = points[i].GetComponent<GraphPoint>();
+                    gp.ShowLabel(m_ShowLabels);
+                }
+            }
+        }
+
         public void SetColors(Color color){
             SetColors(color, color);
         }
         public void SetColors(Color lineColor, Color pointColor){
             m_lineColor = lineColor;
             m_pointColor = pointColor;
+
+            var points = PointSpawner.SpawnedGameObjects;
+            for (int i = 0; i < points.Count; i++){
+                var gp = points[i].GetComponent<GraphPoint>();
+                gp.SetColor(pointColor);
+            }
+
+            var sublines = SubLineSpawner.SpawnedGameObjects;
+            for (int i = 0; i < sublines.Count; i++){
+                sublines[i].GetComponent<Image>().color = lineColor;
+            }
         }
 
         /// <summary>
@@ -65,6 +91,7 @@
             var pointPosition = new Vector2(pointX, pointY);
 
             point.Set(plv.Key, plv.Value, pointPosition, m_pointColor);
+            point.ShowLabel(ShowLabels);
 
             return point;
         }
