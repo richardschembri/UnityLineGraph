@@ -322,16 +322,16 @@
         {
             YmarkerContent.DestroyAllSpawns();
 
-            float sepMaxValue = GetSepMaxY(); //GetMaxY();
-            float sepMinValue = GetSepMinY(); //GetMinY();
+            float sepMaxValue = GetSepMaxY();
+            float sepMinValue = GetSepMinY();
             int minSepCount = Mathf.CeilToInt(viewport.rect.height / yAxisSepHeight);  
             int sepCount = Mathf.CeilToInt((sepMaxValue - sepMinValue) / yAxisUnitSpan);
-            sepCount = Mathf.Max(minSepCount, sepCount);
             if (FitYAxisToBounderies){
                 yPixelsPerUnit = (viewport.rect.height / sepCount) / yAxisUnitSpan;
+            }else{
+                sepCount = Mathf.Max(minSepCount, sepCount);
             }
 
-            //for(float y = sepMinValue; y <= sepMaxValue; y += yAxisValueSpan)
             for(int i = 0; i < sepCount; i ++ )
             {
                 float y = sepMinValue + (i * yAxisUnitSpan);
