@@ -100,8 +100,8 @@
             var lbl_index = parentController.xAxisLabels.IndexOf(plv.Key);
             var point = PointSpawner.SpawnAndGetGameObject().GetComponent<GraphPoint>();
             //var pointX = ((plv_index + 1 / 2) * parentController.Settings.xSize) + parentController.Settings.xSize;
-            var pointX = ((lbl_index + 1 / 2) * parentController.xSize) + parentController.xSize;
-            var pointY = (plv.Value - parentController.OffsetY)  * parentController.ySize;
+            var pointX = ((lbl_index + 1 / 2) * parentController.xPixelsPerUnit) + parentController.xPixelsPerUnit;
+            var pointY = (plv.Value - parentController.OffsetY)  * parentController.yPixelsPerUnit;
             var pointPosition = new Vector2(pointX, pointY);
 
             point.Set(plv.Key, plv.Value, pointPosition, m_pointColor);
@@ -195,7 +195,7 @@
 
             if(valueList.Count == 0)
             {
-                return parentController.yAxisValueSpan;//0;
+                return parentController.yAxisUnitSpan;//0;
             }
 
             for(int i = 0;i < valueList.Count; i++) //+= settings.valueSpan)
@@ -208,13 +208,13 @@
         public float GetSepMaxY(){
             float max = GetMaxY();
             float sepMax = float.MinValue;
-            int sepCount = (int)(max / parentController.yAxisValueSpan);
+            int sepCount = (int)(max / parentController.yAxisUnitSpan);
             while (sepMax < max){
-               sepMax = Mathf.Max(max, sepCount * parentController.yAxisValueSpan);
+               sepMax = Mathf.Max(max, sepCount * parentController.yAxisUnitSpan);
                sepCount++; 
             }
 
-            return sepMax + parentController.yAxisValueSpan;
+            return sepMax + parentController.yAxisUnitSpan;
         }
 
         public float GetMinY(){
@@ -235,13 +235,13 @@
         public float GetSepMinY(){
             float min = GetMinY();
             float sepMin = float.MaxValue;
-            int sepCount = (int)(min / parentController.yAxisValueSpan);
-            while (sepMin > min){
-               sepMin = Mathf.Min(min, sepCount * parentController.yAxisValueSpan);
+            int sepCount = (int)(min / parentController.yAxisUnitSpan);
+            while (sepMin > min || sepMin % parentController.yAxisUnitSpan != 0){
+               sepMin = Mathf.Min(min, sepCount * parentController.yAxisUnitSpan);
                sepCount--; 
             }
 
-            return sepMin - parentController.yAxisValueSpan;
+            return sepMin - parentController.yAxisUnitSpan;
         }
 
     }

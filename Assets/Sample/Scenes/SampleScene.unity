@@ -948,5 +948,7 @@ PrefabInstance:
       propertyPath: SeperatorThickness
       value: 5
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2273893612919619563, guid: 49d64f0f511174103bdfd7a042b4abff, type: 3}
+    - {fileID: 2273893612653033345, guid: 49d64f0f511174103bdfd7a042b4abff, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 49d64f0f511174103bdfd7a042b4abff, type: 3}

@@ -46,6 +46,7 @@ public class Sample : MonoBehaviour
         var valueList = new List<float>()
         {
             55.25f, 60f, 57f, 51f, 70f, 150.5f, 100.75f
+            //5.25f, 6f, 7f, 5f, 7f, 15.5f, 10.75f
         };
         m_GraphLine1.ClearData();
         m_GraphLine2.ClearData();
@@ -79,19 +80,19 @@ public class Sample : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            lineGraph.xSize = 10;
+            lineGraph.xPixelsPerUnit = 10;
         }
         if (Input.GetKeyDown(KeyCode.X))
         {
-            lineGraph.ySize = 1;
+            lineGraph.yPixelsPerUnit = 1;
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
-            lineGraph.yAxisValueSpan = 50;
+            lineGraph.yAxisUnitSpan = 50;
         }
         if (Input.GetKeyDown(KeyCode.V))
         {
-            lineGraph.yAxisValueSpan = 5;
+            lineGraph.yAxisUnitSpan = 5;
         }
         if (Input.GetKeyDown(KeyCode.C))
         {
@@ -111,8 +112,11 @@ public class Sample : MonoBehaviour
         {
             lineGraph.ResetSettings();
         }
+        if(Input.GetKeyUp(KeyCode.D)){
+            ClearGraph();
+        }
         if(Input.GetKeyUp(KeyCode.R)){
-            lineGraph.ClearGraph();
+            RefreshGraph();
         }
 
         if(Input.GetKeyUp(KeyCode.L)){

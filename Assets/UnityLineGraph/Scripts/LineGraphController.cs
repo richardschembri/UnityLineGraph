@@ -35,12 +35,18 @@
             }
         }
 
-        public float xSize = 50f;
-        public float ySize = 5f;
-        public float yAxisValueSpan = 10f;
+        public float xPixelsPerUnit = 50f;
+        public float yPixelsPerUnit = 5f;
+        public float yAxisUnitSpan = 10f;
         public bool AutoScroll = true;
         public float SeperatorThickness = 2f;
         public List<string> xAxisLabels;
+
+        public float yAxisSepHeight{
+            get{
+                return yAxisUnitSpan * yPixelsPerUnit;
+            }
+        }
 
         private float m_OffsetY = 0f;
 
@@ -54,9 +60,9 @@
         }
 
         public void ResetSettings(){
-            xSize = 50f;
-            ySize = 5f;
-            yAxisValueSpan = 10f;
+            xPixelsPerUnit = 50f;
+            yPixelsPerUnit = 5f;
+            yAxisUnitSpan = 10f;
             AutoScroll = true;
             SeperatorThickness = 2f;
         }
@@ -67,10 +73,6 @@
             content = viewport.Find("Content") as RectTransform;
             xUnitLabel = this.transform.Find("X Unit Label").gameObject;
             yUnitLabel = this.transform.Find("Y Unit Label").gameObject;
-        }
-
-        private void Start()
-        {
         }
 
         /// <summary>
@@ -132,10 +134,10 @@
         {
             Vector2 buffer = new Vector2(10, 10);
             ///float width = (Settings.xAxisLabels.Count / 2) * Settings.xSize;
-            float width = (xAxisLabels.Count + 1) * xSize;
+            float width = (xAxisLabels.Count + 1) * xPixelsPerUnit;
             int sepCount = YmarkerContent.SpawnedGameObjects.Count;
-            float height = (yAxisValueSpan * sepCount * ySize)
-                            - ((yAxisValueSpan / 4) * ySize)
+            float height = (yAxisUnitSpan * sepCount * yPixelsPerUnit)
+                            - ((yAxisUnitSpan / 4) * yPixelsPerUnit)
                             + SeperatorThickness;
 
             content.sizeDelta = new Vector2(width, height) + buffer;
@@ -193,7 +195,7 @@
         private void UpdateMakersPosition()
         {
             Vector2 contentPosition = content.anchoredPosition;
-            YmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(YmarkerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + SeperatorThickness);
+            YmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(YmarkerContent.GetComponent<RectTransform>().anchoredPosition.x, content.anchoredPosition.y + (SeperatorThickness / 2f));
             XmarkerContent.GetComponent<RectTransform>().anchoredPosition = new Vector2(content.anchoredPosition.x,  XmarkerContent.GetComponent<RectTransform>().anchoredPosition.y);
 
         }
@@ -278,9 +280,9 @@
                 return;
             }
 
-            var marker = XmarkerContent.SpawnAndGetGameObject().GetComponent<XMarker>();
-            marker.SetLabelText(labelText);
-            XmarkerContent.GetComponent<RectTransform>().sizeDelta = new Vector2((index + 1) * xSize, 0);
+            var marker = XmarkerContent.SpawnAndGetGameObject().GetComponent<Marker>();
+            marker.Init(labelText, new Color(0, 0, 0, 0.25f));
+            XmarkerContent.GetComponent<RectTransform>().sizeDelta = new Vector2((index + 1) * xPixelsPerUnit, 0);
 
             marker.name = markerName;
         }
@@ -299,8 +301,8 @@
                 return;
             }
 
-            var marker = YmarkerContent.SpawnAndGetGameObject().GetComponent<YMarker>();
-            marker.Init(y.ToString(), new Color(0, 0, 0, 0.5f));
+            var marker = YmarkerContent.SpawnAndGetGameObject().GetComponent<Marker>();
+            marker.Init(y.ToString(), new Color(0, 0, 0, 0.25f));
             marker.transform.SetAsFirstSibling();
             marker.name = markerName;
             marker.SetLabelText(y.ToString()); 
@@ -315,11 +317,14 @@
 
             float sepMaxValue = GetSepMaxY(); //GetMaxY();
             float sepMinValue = GetSepMinY(); //GetMinY();
+            int minSepCount = Mathf.CeilToInt(viewport.rect.height / yAxisSepHeight);  
+            int sepCount = Mathf.CeilToInt((sepMaxValue - sepMinValue) / yAxisUnitSpan);
+            sepCount = Mathf.Max(minSepCount, sepCount);
 
-            //int seperatorCount = Mathf.CeilToInt((sepMaxValue - sepMinValue) / settings.yAxisSeparatorSpan);
-
-            for(float y = sepMinValue; y <= sepMaxValue; y += yAxisValueSpan)
+            //for(float y = sepMinValue; y <= sepMaxValue; y += yAxisValueSpan)
+            for(int i = 0; i < sepCount; i ++ )
             {
+                float y = sepMinValue + (i * yAxisUnitSpan);
                 string markerName = "YMarker(" + y + ")";
                 var yMarker = YmarkerContent.transform.Find(markerName);
 
@@ -328,7 +333,7 @@
                 {
                     CreateYMarker(y);
                 }else{
-                    yMarker.GetComponent<YMarker>().SetLabelText(y.ToString()); 
+                    yMarker.GetComponent<Marker>().SetLabelText(y.ToString()); 
                 }
             }
         }

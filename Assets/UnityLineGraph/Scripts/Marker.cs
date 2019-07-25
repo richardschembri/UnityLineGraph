@@ -1,15 +1,11 @@
-﻿namespace UnityLineGraph
-{
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class YMarker : MonoBehaviour
+public class Marker : MonoBehaviour
 {
     Text m_Label;
     Image m_LineMarker;
-
+    // Start is called before the first frame update
     void Awake(){
         m_Label = GetComponentInChildren<Text>();
         m_LineMarker = GetComponentInChildren<Image>();
@@ -21,13 +17,10 @@ public class YMarker : MonoBehaviour
     }
 
     public void SetLabelText(string labelText){
-
         m_Label.text = labelText;
     }
 
     public void SetLineColor(Color lineColor){
         m_LineMarker.color = lineColor;
     }
-
-}
 }
