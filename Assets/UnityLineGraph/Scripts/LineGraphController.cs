@@ -42,6 +42,9 @@
         public float SeperatorThickness = 2f;
         public List<string> xAxisLabels;
 
+        public bool FitYAxisToBounderies = false;
+        public bool FitXAxisToBounderies = false;
+
         public float yAxisSepHeight{
             get{
                 return yAxisUnitSpan * yPixelsPerUnit;
@@ -229,7 +232,7 @@
             for(int i = 0; i < GraphLines.Count; i++){
                 GraphLines[i].Generate();
             }
-            if(GraphLines.Any()){
+            if(GraphLines.Any() && AutoScroll){
                 ScrollToPoint(GraphLines[0].EndPoint);
             }
         }
@@ -289,6 +292,10 @@
 
         public void CreateXAxisMarkers(){
             XmarkerContent.DestroyAllSpawns();
+
+            if(FitXAxisToBounderies){
+                xPixelsPerUnit = viewport.GetComponent<RectTransform>().rect.width / (xAxisLabels.Count + 1) ;
+            }
             for (int x = 0; x < xAxisLabels.Count; x++) // += settings.valueSpan)
             {
                 CreateXMarker(x, xAxisLabels[x]);
@@ -320,6 +327,9 @@
             int minSepCount = Mathf.CeilToInt(viewport.rect.height / yAxisSepHeight);  
             int sepCount = Mathf.CeilToInt((sepMaxValue - sepMinValue) / yAxisUnitSpan);
             sepCount = Mathf.Max(minSepCount, sepCount);
+            if (FitYAxisToBounderies){
+                yPixelsPerUnit = (viewport.rect.height / sepCount) / yAxisUnitSpan;
+            }
 
             //for(float y = sepMinValue; y <= sepMaxValue; y += yAxisValueSpan)
             for(int i = 0; i < sepCount; i ++ )

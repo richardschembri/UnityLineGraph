@@ -20,6 +20,9 @@ public class Sample : MonoBehaviour
     void Start()
     {
         lineGraph = GameObject.Find("LineGraph").GetComponent<LineGraphController>();
+        lineGraph.FitYAxisToBounderies = true;
+        lineGraph.FitXAxisToBounderies = true;
+        lineGraph.AutoScroll = false;
 
         m_GraphLine1 = lineGraph.AddGraphLine(Graph1Color);
         m_GraphLine1.ShowLabels = ShowLabels;
