@@ -100,23 +100,26 @@
             }
         }
 
-        private Spawner m_graphLineSpawner;
-        public Spawner m_GraphLineSpawner{
+        private MultiSpawner m_graphLineSpawner;
+        public MultiSpawner m_GraphLineSpawner{
             get{
                 if(m_graphLineSpawner == null){
-                    m_graphLineSpawner = content.GetComponent<Spawner>();
+                    m_graphLineSpawner = content.GetComponent<MultiSpawner>();
                 }
                 return m_graphLineSpawner;
             }
         }
 
-        public GraphLine AddGraphLine(Color color){
-            return AddGraphLine(color, color);
-        }
-        public GraphLine AddGraphLine(Color lineColor, Color pointColor){
-            var graphLine = m_GraphLineSpawner.SpawnAndGetGameObject().GetComponent<GraphLine>();
-            //graphLine.settings = Settings;
+        public GraphLine AddGraphLine(int lineIndex = 0){
+            var graphLine = m_GraphLineSpawner.SpawnAndGetGameObject(lineIndex).GetComponent<GraphLine>();
             graphLine.parentController = this;
+            return graphLine;
+        }
+        public GraphLine AddGraphLine(Color color, int lineIndex = 0){
+            return AddGraphLine(color, color, lineIndex);
+        }
+        public GraphLine AddGraphLine(Color lineColor, Color pointColor, int lineIndex = 0){
+            var graphLine = AddGraphLine(lineIndex);
             graphLine.SetColors(lineColor, pointColor);
             return graphLine;
         }
@@ -175,7 +178,12 @@
             float min = float.MaxValue;
 
             for (int i = 0; i < GraphLines.Count; i++){
-                min = Mathf.Min(min, GraphLines[i].GetMinY());
+                if(GraphLines[i].ValueCount > 0){
+                    min = Mathf.Min(min, GraphLines[i].GetMinY());
+                }
+            }
+            if(min == float.MaxValue){
+                min = 0;
             }
 
             return min;
@@ -184,9 +192,14 @@
             float sepMin = float.MaxValue;
 
             for (int i = 0; i < GraphLines.Count; i++){
-                sepMin = Mathf.Min(sepMin, GraphLines[i].GetSepMinY());
+                if(GraphLines[i].ValueCount > 0){
+                    sepMin = Mathf.Min(sepMin, GraphLines[i].GetSepMinY());
+                }
             }
 
+            if(sepMin == float.MaxValue){
+                sepMin = 0;
+            }
             return sepMin;
         }
 
@@ -227,7 +240,7 @@
 
             UpdateMakersPosition();
 
-            m_OffsetY = GetSepMinY();
+            OffsetY = GetSepMinY();
 
             for(int i = 0; i < GraphLines.Count; i++){
                 GraphLines[i].Generate();

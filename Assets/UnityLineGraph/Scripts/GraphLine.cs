@@ -10,9 +10,11 @@
     public class GraphLine : MonoBehaviour
     {
         private RectTransform content;
-        private Color m_pointColor;
+        [SerializeField]
+        private Color m_pointColor = Color.red;
         private List<KeyValuePair<string, float>> valueList = new List<KeyValuePair<string, float>>();
-        private Color m_lineColor;
+        [SerializeField]
+        private Color m_lineColor = Color.red;
         //public LineGraphController.LineGraphSettings settings;
 
         public LineGraphController parentController;
@@ -47,6 +49,12 @@
         private  KeyValuePair<string, float> m_EndPointLabelValue{
             get{
                 return valueList[m_EndPointIndex];
+            }
+        }
+
+        public int ValueCount{
+            get{
+                return valueList.Count;
             }
         }
 

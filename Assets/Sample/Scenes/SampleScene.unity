@@ -120,6 +120,18 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &403184152 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2302072551441821280, guid: 49d64f0f511174103bdfd7a042b4abff,
+    type: 3}
+  m_PrefabInstance: {fileID: 2302072551349253913}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73b5c1aa8f05d9841b6991a9b5627ed4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -353,6 +365,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 689111372}
   m_CullTransparentMesh: 0
+--- !u!114 &771191879 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2302072550655420641, guid: 49d64f0f511174103bdfd7a042b4abff,
+    type: 3}
+  m_PrefabInstance: {fileID: 2302072551349253913}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73b5c1aa8f05d9841b6991a9b5627ed4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &783893790
 GameObject:
   m_ObjectHideFlags: 0
@@ -586,6 +610,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1101590837}
   m_CullTransparentMesh: 0
+--- !u!114 &1278316125 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2302072549954826613, guid: 49d64f0f511174103bdfd7a042b4abff,
+    type: 3}
+  m_PrefabInstance: {fileID: 2302072551349253913}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73b5c1aa8f05d9841b6991a9b5627ed4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1294078488 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2302072550088231982, guid: 49d64f0f511174103bdfd7a042b4abff,
+    type: 3}
+  m_PrefabInstance: {fileID: 2302072551349253913}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73b5c1aa8f05d9841b6991a9b5627ed4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1315009814
 GameObject:
   m_ObjectHideFlags: 0
@@ -665,6 +713,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1315009814}
   m_CullTransparentMesh: 0
+--- !u!114 &1709319684 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2302072550176675836, guid: 49d64f0f511174103bdfd7a042b4abff,
+    type: 3}
+  m_PrefabInstance: {fileID: 2302072551349253913}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bf0ca5c5d8044ed9bdd244fa93941d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1738562202
 GameObject:
   m_ObjectHideFlags: 0
@@ -933,5 +993,30 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 2302072550176675836, guid: 49d64f0f511174103bdfd7a042b4abff,
+        type: 3}
+      propertyPath: YmarkerContent
+      value: 
+      objectReference: {fileID: 403184152}
+    - target: {fileID: 2302072550176675836, guid: 49d64f0f511174103bdfd7a042b4abff,
+        type: 3}
+      propertyPath: XmarkerContent
+      value: 
+      objectReference: {fileID: 771191879}
+    - target: {fileID: 2302072550874015123, guid: 49d64f0f511174103bdfd7a042b4abff,
+        type: 3}
+      propertyPath: PointSpawner
+      value: 
+      objectReference: {fileID: 1278316125}
+    - target: {fileID: 2302072550874015123, guid: 49d64f0f511174103bdfd7a042b4abff,
+        type: 3}
+      propertyPath: SubLineSpawner
+      value: 
+      objectReference: {fileID: 1294078488}
+    - target: {fileID: 2302072550874015123, guid: 49d64f0f511174103bdfd7a042b4abff,
+        type: 3}
+      propertyPath: parentController
+      value: 
+      objectReference: {fileID: 1709319684}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 49d64f0f511174103bdfd7a042b4abff, type: 3}

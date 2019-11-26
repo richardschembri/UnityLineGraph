@@ -993,6 +993,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9e82d61164fe46c495c4c37ed9000a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_pointColor: {r: 1, g: 0, b: 0, a: 1}
+  m_lineColor: {r: 1, g: 0, b: 0, a: 1}
   parentController: {fileID: 0}
   PointSpawner: {fileID: 2302072549954826613}
   SubLineSpawner: {fileID: 2302072550088231982}
@@ -1225,7 +1227,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2302072551269583991}
-  - component: {fileID: 2302072551269583990}
+  - component: {fileID: 1723225546243959515}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -1253,7 +1255,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 250, y: 300}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &2302072551269583990
+--- !u!114 &1723225546243959515
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1262,12 +1264,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2302072551269583988}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 73b5c1aa8f05d9841b6991a9b5627ed4, type: 3}
+  m_Script: {fileID: 11500000, guid: 8e45ee2bd5e5349feb911f979ee72dad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnLimit: -1
   isParent: 1
-  GameObjectToSpawn: {fileID: 2302072550874015121}
+  GameObjectsToSpawn:
+  - {fileID: 2302072550874015121}
 --- !u!1 &2302072551307337445
 GameObject:
   m_ObjectHideFlags: 0
