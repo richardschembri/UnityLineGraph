@@ -9,6 +9,7 @@
 
     public class GraphLine : MonoBehaviour
     {
+        public bool IsSecondValue = false;
         private RectTransform content;
         [SerializeField]
         private Color m_pointColor = Color.red;
@@ -109,7 +110,8 @@
             var point = PointSpawner.SpawnAndGetGameObject().GetComponent<GraphPoint>();
             //var pointX = ((plv_index + 1 / 2) * parentController.Settings.xSize) + parentController.Settings.xSize;
             var pointX = ((lbl_index + 1 / 2) * parentController.xPixelsPerUnit) + parentController.xPixelsPerUnit;
-            var pointY = (plv.Value - parentController.OffsetY)  * parentController.yPixelsPerUnit;
+            // var pointY = (plv.Value - parentController.OffsetY)  * parentController.yPixelsPerUnit;
+            var pointY = (plv.Value - parentController.GetSepMinY(IsSecondValue))  * parentController.yPixelsPerUnit;
             var pointPosition = new Vector2(pointX, pointY);
 
             point.Set(plv.Key, plv.Value, pointPosition, m_pointColor);
@@ -213,6 +215,7 @@
 
             return max;
         }
+/*
         public float GetSepMaxY(){
             float max = GetMaxY();
             float sepMax = float.MinValue;
@@ -223,6 +226,19 @@
             }
 
             return sepMax + parentController.yAxisUnitSpan;
+        }
+*/
+        public float GetSepMaxY(){
+            float max = GetMaxY();
+            float sepMax = float.MinValue;
+            float yAxisUnitSpan = Get_yAxisUnitSpan();
+            int sepCount = (int)(max / yAxisUnitSpan);
+            while (sepMax < max){
+               sepMax = Mathf.Max(max, sepCount * yAxisUnitSpan);
+               sepCount++; 
+            }
+
+            return sepMax + yAxisUnitSpan;
         }
 
         public float GetMinY(){
@@ -240,6 +256,7 @@
             return min;
         }
 
+/*
         public float GetSepMinY(){
             float min = GetMinY();
             float sepMin = float.MaxValue;
@@ -251,6 +268,32 @@
 
             return sepMin - parentController.yAxisUnitSpan;
         }
+*/
+
+        public float GetSepMinY(){
+            float min = GetMinY();
+            float sepMin = float.MaxValue;
+
+            float yAxisUnitSpan = Get_yAxisUnitSpan();
+
+            int sepCount = (int)(min / yAxisUnitSpan);
+            while (sepMin > min || sepMin % parentController.yAxisUnitSpan != 0){
+               sepMin = Mathf.Min(min, sepCount * parentController.yAxisUnitSpan);
+               sepCount--; 
+            }
+
+            return sepMin - yAxisUnitSpan;
+        }
+
+        private float Get_yAxisUnitSpan(){
+
+            float result = parentController.yAxisUnitSpan;
+            if (IsSecondValue){
+                result = parentController.yAxisSecondValueUnitSpan;
+            }
+            return result;
+        }
+        
 
     }
 }

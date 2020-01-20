@@ -38,6 +38,16 @@
         public float xPixelsPerUnit = 50f;
         public float yPixelsPerUnit = 5f;
         public float yAxisUnitSpan = 10f;
+
+        public float yAxisSecondValueUnitSpan = 0f;
+
+        public float GetyAxisUnitSpan(bool isSecondValue = false){
+            if(!isSecondValue){
+                return yAxisUnitSpan;
+            }
+            return yAxisSecondValueUnitSpan; 
+
+        }
         public bool AutoScroll = true;
         public float SeperatorThickness = 2f;
         public List<string> xAxisLabels;
@@ -45,12 +55,11 @@
         public bool FitYAxisToBounderies = false;
         public bool FitXAxisToBounderies = false;
 
-        public float yAxisSepHeight{
-            get{
-                return yAxisUnitSpan * yPixelsPerUnit;
-            }
+        public float GetyAxisSepHeight(bool isSecondValue = false){
+            return GetyAxisUnitSpan(isSecondValue) * yPixelsPerUnit;
         }
 
+        /*
         private float m_OffsetY = 0f;
 
         public float OffsetY{
@@ -61,11 +70,13 @@
                 m_OffsetY = value;
             }
         }
+        */
 
         public void ResetSettings(){
             xPixelsPerUnit = 50f;
             yPixelsPerUnit = 5f;
             yAxisUnitSpan = 10f;
+            yAxisSecondValueUnitSpan = 0f;
             AutoScroll = true;
             SeperatorThickness = 2f;
         }
@@ -164,6 +175,7 @@
 
             return max;
         }
+        /*
         private float GetSepMaxY(){
             float sepMax = float.MinValue;
 
@@ -173,10 +185,23 @@
 
             return sepMax;
         }
+        */
+        private float GetSepMaxY(bool isSecondValue = false){
+            return GetSepMaxY(GraphLines.Where(gl => gl.IsSecondValue == isSecondValue).ToList());
+        }
+        private float GetSepMaxY(List<GraphLine> graphLines){
+            float sepMax = float.MinValue;
 
+            for (int i = 0; i < graphLines.Count; i++){
+                sepMax = Mathf.Max(sepMax, graphLines[i].GetSepMaxY());
+            }
+
+            return sepMax;
+        }
+
+        /*
         private float GetMinY(){
             float min = float.MaxValue;
-
             for (int i = 0; i < GraphLines.Count; i++){
                 if(GraphLines[i].ValueCount > 0){
                     min = Mathf.Min(min, GraphLines[i].GetMinY());
@@ -188,6 +213,26 @@
 
             return min;
         }
+        */
+
+        private float GetMinY(bool isSecondValue = false) {
+            return GetMinY(GraphLines.Where(gl => isSecondValue).ToList());
+        }
+        private float GetMinY(List<GraphLine> graphLines) {
+            float min = float.MaxValue;
+            for (int i = 0; i < graphLines.Count; i++){
+                if(graphLines[i].ValueCount > 0){
+                    min = Mathf.Min(min, graphLines[i].GetMinY());
+                }
+            }
+            if(min == float.MaxValue){
+                min = 0;
+            }
+
+            return min;
+        }
+
+        /*
         private float GetSepMinY(){
             float sepMin = float.MaxValue;
 
@@ -202,8 +247,24 @@
             }
             return sepMin;
         }
+        */
+        public float GetSepMinY(bool isSecondValue = false){
+            return GetSepMinY(GraphLines.Where(gl => gl.IsSecondValue == isSecondValue).ToList());
+        }
+        private float GetSepMinY(List<GraphLine> graphLines){
+            float sepMin = float.MaxValue;
 
+            for (int i = 0; i < graphLines.Count; i++){
+                if(graphLines[i].ValueCount > 0){
+                    sepMin = Mathf.Min(sepMin, graphLines[i].GetSepMinY());
+                }
+            }
 
+            if(sepMin == float.MaxValue){
+                sepMin = 0;
+            }
+            return sepMin;
+        }
 
         /// <summary>
         /// グラフ外のラベルと軸セパレータの位置を更新
@@ -240,7 +301,7 @@
 
             UpdateMakersPosition();
 
-            OffsetY = GetSepMinY();
+            // OffsetY = GetSepMinY();
 
             for(int i = 0; i < GraphLines.Count; i++){
                 GraphLines[i].Generate();
@@ -314,9 +375,10 @@
                 CreateXMarker(x, xAxisLabels[x]);
             }
         }
+        /*
         private void CreateYMarker(float y)
         {
-            var markerName = "YMarker(" + y + ")";
+            var markerName =  "YMarker(" + y + ")";
             if(YmarkerContent.SpawnedGameObjects.Any(ymc => ymc.name == markerName)){
                 return;
             }
@@ -325,9 +387,55 @@
             marker.Init(y.ToString(), new Color(0, 0, 0, 0.25f));
             marker.transform.SetAsFirstSibling();
             marker.name = markerName;
-            marker.SetLabelText(y.ToString()); 
+            //marker.SetLabelText(y.ToString()); 
+        }
+        */
+        private void CreateYMarker(float y, float? ySecondVal)
+        {
+            var markerName = string.Format("YMarker({0})", y);
+            if(ySecondVal != null){
+                markerName = string.Format("YMarker({0}|{1})", y, ySecondVal);
+            }
+            if(YmarkerContent.SpawnedGameObjects.Any(ymc => ymc.name == markerName)){
+                return;
+            }
+
+            var marker = YmarkerContent.SpawnAndGetGameObject().GetComponent<Marker>();
+            if(ySecondVal != null){
+                marker.Init(y.ToString(), new Color(0, 0, 0, 0.25f), ySecondVal.Value.ToString());
+            }else{
+                marker.Init(y.ToString(), new Color(0, 0, 0, 0.25f));
+            }
+
+            marker.transform.SetAsFirstSibling();
+            marker.name = markerName;
+            //marker.SetLabelText(y.ToString()); 
         }
 
+        private int GetSepCount(bool isSecondValue){
+            float sepMaxValue = GetSepMaxY(isSecondValue);
+            float sepMinValue = GetSepMinY(isSecondValue);
+
+
+            int minSepCount = Mathf.CeilToInt(viewport.rect.height / GetyAxisSepHeight(isSecondValue));  
+            int result = Mathf.CeilToInt((sepMaxValue - sepMinValue) / GetyAxisUnitSpan(isSecondValue));
+            if (FitYAxisToBounderies){
+                yPixelsPerUnit = (viewport.rect.height / result) / GetyAxisUnitSpan(isSecondValue);
+            }else{
+                result = Mathf.Max(minSepCount, result);
+            }
+
+            return result;
+        }
+
+        private int GetSepCount(){
+            if(yAxisSecondValueUnitSpan > 0){
+                return Mathf.Max(GetSepCount(true), GetSepCount(false));
+            }
+            return GetSepCount(false);
+        }
+
+        /*
         /// <summary>
         /// Y軸のセパレータを今のグラフに合わせて表示する
         /// </summary>
@@ -337,6 +445,8 @@
 
             float sepMaxValue = GetSepMaxY();
             float sepMinValue = GetSepMinY();
+
+
             int minSepCount = Mathf.CeilToInt(viewport.rect.height / yAxisSepHeight);  
             int sepCount = Mathf.CeilToInt((sepMaxValue - sepMinValue) / yAxisUnitSpan);
             if (FitYAxisToBounderies){
@@ -360,7 +470,47 @@
                 }
             }
         }
+        */
 
+        /// <summary>
+        /// Y軸のセパレータを今のグラフに合わせて表示する
+        /// </summary>
+        private void CreateYAxisMarkers()
+        {
+            YmarkerContent.DestroyAllSpawns();
+
+            int sepCount = GetSepCount();
+
+            float sepMinY = GetSepMinY();
+            float sepVal2MinY = 0;
+
+            if(yAxisSecondValueUnitSpan > 0 ){
+                sepVal2MinY = GetSepMinY(true);
+            }
+
+            for(int i = 0; i < sepCount; i ++ )
+            {
+                //float y = sepMinValue + (i * yAxisUnitSpan);
+                float y = sepMinY + (i * yAxisUnitSpan);
+                float? ySecondVal = null;
+                if(yAxisSecondValueUnitSpan > 0 ){
+                    ySecondVal = sepVal2MinY + (i * yAxisSecondValueUnitSpan);
+                }
+                string markerName = string.Format("YMarker({0})", y);
+                if(ySecondVal != null){
+                    markerName = string.Format("YMarker({0}|{1})", y, ySecondVal);
+                }
+                var yMarker = YmarkerContent.transform.Find(markerName);
+
+                // 存在したら追加しない
+                if (yMarker == null)
+                {
+                    CreateYMarker(y, ySecondVal);
+                }else{
+                    yMarker.GetComponent<Marker>().SetLabelText(y.ToString()); 
+                }
+            }
+        }
         #endregion
     }
 }

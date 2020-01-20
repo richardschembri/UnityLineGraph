@@ -9,12 +9,14 @@ public class Sample : MonoBehaviour
     public Color Graph1Color = Color.green;
     public Color Graph2Color = Color.red;
     public Color Graph3Color = Color.magenta;
+    public Color Graph4Color = Color.blue;
 
     public bool ShowLabels = false;
 
-    private GraphLine m_GraphLine1; 
-    private GraphLine m_GraphLine2; 
-    private GraphLine m_GraphLine3; 
+    private GraphLine m_GraphLine1;
+    private GraphLine m_GraphLine2;
+    private GraphLine m_GraphLine3;
+    private GraphLine m_GraphLine4;
     public string xAxisLabelFormat = "{0}s";
 
     void Start()
@@ -33,10 +35,13 @@ public class Sample : MonoBehaviour
         m_GraphLine3 = lineGraph.AddGraphLine(Graph3Color);
         m_GraphLine3.ShowLabels = ShowLabels;
 
+        m_GraphLine4 = lineGraph.AddGraphLine(Graph4Color);
+        m_GraphLine4.ShowLabels = ShowLabels;
+        m_GraphLine4.IsSecondValue = true;
+
         for(int i = 0; i < 13; i++){
             lineGraph.xAxisLabels.Add(string.Format(xAxisLabelFormat, i + 1));
         }
-
 
         lineGraph.SetXUnitText("Time(s)");
         lineGraph.SetYUnitText("Energy");
@@ -49,11 +54,17 @@ public class Sample : MonoBehaviour
         var valueList = new List<float>()
         {
             55.25f, 60f, 57f, 51f, 70f, 150.5f, 100.75f
-            //5.25f, 6f, 7f, 5f, 7f, 15.5f, 10.75f
         };
+        var secondValueList = new List<float>()
+        {
+            1035.25f, 1040f, 1037f, 1031f, 1050f, 1040.5f, 1100.75f
+        };
+
         m_GraphLine1.ClearData();
         m_GraphLine2.ClearData();
         m_GraphLine3.ClearData();
+        m_GraphLine4.ClearData();
+
         for (int i = 0; i < valueList.Count; i++)
         {
             var lbl = string.Format(xAxisLabelFormat, i + 1);
@@ -65,6 +76,7 @@ public class Sample : MonoBehaviour
                 var g3Val = Random.Range(valueList[i] - 10f, valueList[i] + 10f); 
                 m_GraphLine3.AddValue(lbl.ToString(), (float)System.Math.Round(g3Val, 2));
             }
+            m_GraphLine4.AddValue(lbl.ToString(), secondValueList[i]);
         }
 
         lineGraph.RefreshGraphUI();
