@@ -416,15 +416,10 @@
             float sepMaxValue = GetSepMaxY(isSecondValue);
             float sepMinValue = GetSepMinY(isSecondValue);
 
-
             int minSepCount = Mathf.CeilToInt(viewport.rect.height / GetyAxisSepHeight(isSecondValue));  
+
             int result = Mathf.CeilToInt((sepMaxValue - sepMinValue) / GetyAxisUnitSpan(isSecondValue));
-            if (FitYAxisToBounderies){
-                var newYPixelsPerUnit = (viewport.rect.height / result) / GetyAxisUnitSpan(isSecondValue);
-                if(newYPixelsPerUnit < yPixelsPerUnit ){
-                    yPixelsPerUnit = newYPixelsPerUnit;
-                }
-            }else{
+            if (!FitYAxisToBounderies){
                 result = Mathf.Max(minSepCount, result);
             }
 
@@ -432,10 +427,24 @@
         }
 
         private int GetSepCount(){
+            float yAxisUS = yAxisUnitSpan; 
+
+            int val1SepCount = GetSepCount(false);
+            int result = val1SepCount;
+
             if(yAxisSecondValueUnitSpan > 0){
-                return Mathf.Max(GetSepCount(true), GetSepCount(false));
+                int val2SepCount = GetSepCount(true);
+                if(val1SepCount < val2SepCount){
+                    result = val2SepCount;
+                    yAxisUS = yAxisSecondValueUnitSpan;
+                }
             }
-            return GetSepCount(false);
+
+            if (FitYAxisToBounderies){
+                yPixelsPerUnit = (viewport.rect.height / result) / yAxisUS;
+            }
+
+            return result;
         }
 
         /*
