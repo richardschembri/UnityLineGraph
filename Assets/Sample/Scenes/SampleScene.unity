@@ -1537,7 +1537,7 @@ MonoBehaviour:
   AutoScroll: 1
   SeperatorThickness: 5
   xAxisLabels: []
-  FitYAxisToBounderies: 0
+  FitYAxisToBounderies: 1
   FitXAxisToBounderies: 0
 --- !u!114 &1177297126
 MonoBehaviour:
