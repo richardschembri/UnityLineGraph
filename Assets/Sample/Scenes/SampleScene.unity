@@ -649,6 +649,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9e82d61164fe46c495c4c37ed9000a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsSecondValue: 0
   m_pointColor: {r: 1, g: 0, b: 0, a: 1}
   m_lineColor: {r: 1, g: 0, b: 0, a: 1}
   parentController: {fileID: 1177297125}
@@ -696,6 +697,7 @@ MonoBehaviour:
   Graph1Color: {r: 0.12588999, g: 0.6509434, b: 0.12588999, a: 1}
   Graph2Color: {r: 0.6792453, g: 0.12495552, b: 0.12495552, a: 1}
   Graph3Color: {r: 0.6415094, g: 0.2208971, b: 0.6415094, a: 1}
+  Graph4Color: {r: 0, g: 0, b: 1, a: 1}
   ShowLabels: 0
   xAxisLabelFormat: '{0}s'
 --- !u!20 &519420031
@@ -1531,6 +1533,7 @@ MonoBehaviour:
   xPixelsPerUnit: 50
   yPixelsPerUnit: 5
   yAxisUnitSpan: 10
+  yAxisSecondValueUnitSpan: 10
   AutoScroll: 1
   SeperatorThickness: 5
   xAxisLabels: []

@@ -420,7 +420,10 @@
             int minSepCount = Mathf.CeilToInt(viewport.rect.height / GetyAxisSepHeight(isSecondValue));  
             int result = Mathf.CeilToInt((sepMaxValue - sepMinValue) / GetyAxisUnitSpan(isSecondValue));
             if (FitYAxisToBounderies){
-                yPixelsPerUnit = (viewport.rect.height / result) / GetyAxisUnitSpan(isSecondValue);
+                var newYPixelsPerUnit = (viewport.rect.height / result) / GetyAxisUnitSpan(isSecondValue);
+                if(newYPixelsPerUnit < yPixelsPerUnit ){
+                    yPixelsPerUnit = newYPixelsPerUnit;
+                }
             }else{
                 result = Mathf.Max(minSepCount, result);
             }
