@@ -37,6 +37,11 @@
 
         public float xPixelsPerUnit = 50f;
         public float yPixelsPerUnit = 5f;
+        public float yPixelsSecondValuePerUnit{ get; private set; } = 5f;
+
+        public float GetyPixelsPerUnit(bool isSecondValue = false){ 
+            return isSecondValue ? yPixelsSecondValuePerUnit : yPixelsPerUnit;
+        }
         public float yAxisUnitSpan = 10f;
 
         public float yAxisSecondValueUnitSpan = 0f;
@@ -390,14 +395,19 @@
             //marker.SetLabelText(y.ToString()); 
         }
         */
-        private void CreateYMarker(float y, float? ySecondVal)
+        private Marker CreateYMarker(float y, float? ySecondVal)
         {
             var markerName = string.Format("YMarker({0})", y);
             if(ySecondVal != null){
                 markerName = string.Format("YMarker({0}|{1})", y, ySecondVal);
             }
+            /*
             if(YmarkerContent.SpawnedGameObjects.Any(ymc => ymc.name == markerName)){
                 return;
+            }*/
+            var markerGO = YmarkerContent.SpawnedGameObjects.FirstOrDefault(ymc => ymc.name == markerName);
+            if(markerGO != null){
+                return markerGO.GetComponent<Marker>();
             }
 
             var marker = YmarkerContent.SpawnAndGetGameObject().GetComponent<Marker>();
@@ -410,6 +420,7 @@
             marker.transform.SetAsFirstSibling();
             marker.name = markerName;
             //marker.SetLabelText(y.ToString()); 
+            return marker;
         }
 
         private int GetSepCount(bool isSecondValue){
@@ -427,8 +438,6 @@
         }
 
         private int GetSepCount(){
-            float yAxisUS = yAxisUnitSpan; 
-
             int val1SepCount = GetSepCount(false);
             int result = val1SepCount;
 
@@ -436,12 +445,12 @@
                 int val2SepCount = GetSepCount(true);
                 if(val1SepCount < val2SepCount){
                     result = val2SepCount;
-                    yAxisUS = yAxisSecondValueUnitSpan;
                 }
             }
 
             if (FitYAxisToBounderies){
-                yPixelsPerUnit = (viewport.rect.height / result) / yAxisUS;
+                yPixelsPerUnit = (viewport.rect.height / result) / yAxisUnitSpan;
+                yPixelsSecondValuePerUnit = (viewport.rect.height / result) / yAxisSecondValueUnitSpan;
             }
 
             return result;
@@ -491,7 +500,6 @@
         {
             YmarkerContent.DestroyAllSpawns();
 
-            int sepCount = GetSepCount();
 
             float sepMinY = GetSepMinY();
             float sepVal2MinY = 0;
@@ -499,6 +507,11 @@
             if(yAxisSecondValueUnitSpan > 0 ){
                 sepVal2MinY = GetSepMinY(true);
             }
+
+            int sepCount = GetSepCount();
+
+            var hasVal1 = GraphLines.Any(gl => gl.IsSecondValue == false && gl.HasValues());
+            var hasVal2 = GraphLines.Any(gl => gl.IsSecondValue == true && gl.HasValues());
 
             for(int i = 0; i < sepCount; i ++ )
             {
@@ -512,15 +525,26 @@
                 if(ySecondVal != null){
                     markerName = string.Format("YMarker({0}|{1})", y, ySecondVal);
                 }
-                var yMarker = YmarkerContent.transform.Find(markerName);
-
-                // 存在したら追加しない
-                if (yMarker == null)
-                {
-                    CreateYMarker(y, ySecondVal);
-                }else{
-                    yMarker.GetComponent<Marker>().SetLabelText(y.ToString()); 
+                var yMarkerGO = YmarkerContent.transform.Find(markerName);
+                string yLabel = string.Empty;
+                string y2Label = string.Empty;
+                if (hasVal1){
+                    yLabel = y.ToString();
                 }
+                if(hasVal2){
+                    y2Label = ySecondVal.ToString();
+                }
+                Marker yMarker;
+                // 存在したら追加しない
+                if (yMarkerGO == null)
+                {
+                    yMarker = CreateYMarker(y, ySecondVal);
+                }else{
+                    yMarker = yMarkerGO.GetComponent<Marker>();
+                }
+                yMarker.GetComponent<Marker>().SetLabelText(yLabel); 
+                yMarker.GetComponent<Marker>().SecondValueLabel(y2Label);
+                //}
             }
         }
         #endregion

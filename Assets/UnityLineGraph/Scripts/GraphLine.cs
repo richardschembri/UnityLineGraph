@@ -41,6 +41,10 @@
             }
         }
 
+        public bool HasValues(){
+            return valueList.Count > 0;
+        }
+
         private int m_EndPointIndex{
             get{
                 return valueList.Count - 1;
@@ -111,7 +115,8 @@
             //var pointX = ((plv_index + 1 / 2) * parentController.Settings.xSize) + parentController.Settings.xSize;
             var pointX = ((lbl_index + 1 / 2) * parentController.xPixelsPerUnit) + parentController.xPixelsPerUnit;
             // var pointY = (plv.Value - parentController.OffsetY)  * parentController.yPixelsPerUnit;
-            var pointY = (plv.Value - parentController.GetSepMinY(IsSecondValue))  * parentController.yPixelsPerUnit;
+            //var pointY = (plv.Value - parentController.GetSepMinY(IsSecondValue))  * parentController.yPixelsPerUnit;
+            var pointY = (plv.Value - parentController.GetSepMinY(IsSecondValue))  * parentController.GetyPixelsPerUnit(IsSecondValue);
             var pointPosition = new Vector2(pointX, pointY);
 
             point.Set(plv.Key, plv.Value, pointPosition, m_pointColor);

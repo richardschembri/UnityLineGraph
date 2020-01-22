@@ -57,7 +57,6 @@ public class Sample : MonoBehaviour
         };
         var secondValueList = new List<float>()
         {
-            //1035.25f, 1040f, 1037f, 1031f, 1050f, 2040.5f, 2100.75f
             2035.25f, 2040f, 2037f, 2031f, 2050f, 2040.5f, 2100.75f, 2030f, 2024.5f, 2055.75f
         };
 
