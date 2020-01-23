@@ -6,6 +6,7 @@
     using UnityEngine.Events;
     using UnityEngine.UI;
     using RSToolkit.Controls;
+    using RSToolkit.Helpers;
 
     public class GraphLine : MonoBehaviour
     {
@@ -27,6 +28,8 @@
         public class OnValueAddedEvent : UnityEvent<float, float> {}
         public OnValueAddedEvent OnValueAdded = new OnValueAddedEvent();        
 
+        private RectTransformHelpers.RectTransformLRTB default_lrtb {get; set;}
+
         private float m_LineThickness = 2f;
         public float LineThickness{
             get{
@@ -39,6 +42,15 @@
                     rt.sizeDelta = new Vector2(rt.sizeDelta.x, m_LineThickness);
                 }
             }
+        }
+
+        public void SetDefaultLRTB(){
+            default_lrtb = GetComponent<RectTransform>().Get_LRTB();
+        }
+
+        public void SlideGraphVertically(float y){
+            var new_lrtb = new RectTransformHelpers.RectTransformLRTB(default_lrtb.Left, default_lrtb.Right, default_lrtb.Top - y, default_lrtb.Bottom + y);
+            GetComponent<RectTransform>().Set_LRTB(new_lrtb);
         }
 
         public bool HasValues(){

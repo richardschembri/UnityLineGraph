@@ -46,13 +46,17 @@
 
         public float yAxisSecondValueUnitSpan = 0f;
 
-        public float GetyAxisUnitSpan(bool isSecondValue = false){
-            if(!isSecondValue){
-                return yAxisUnitSpan;
-            }
-            return yAxisSecondValueUnitSpan; 
+        public float GraphLineYOffset = 0f;
+        public float GraphLineYSecondValueOffset = 0f;
 
+        public float GetyAxisUnitSpan(bool isSecondValue = false){
+            return isSecondValue ? yAxisSecondValueUnitSpan : yAxisUnitSpan;
         }
+
+        public float GetGraphLineYOffset(bool isSecondValue){
+            return isSecondValue ? GraphLineYSecondValueOffset : GraphLineYOffset;
+        }
+
         public bool AutoScroll = true;
         public float SeperatorThickness = 2f;
         public List<string> xAxisLabels;
@@ -129,6 +133,7 @@
         public GraphLine AddGraphLine(int lineIndex = 0){
             var graphLine = m_GraphLineSpawner.SpawnAndGetGameObject(lineIndex).GetComponent<GraphLine>();
             graphLine.parentController = this;
+            graphLine.SetDefaultLRTB();
             return graphLine;
         }
         public GraphLine AddGraphLine(Color color, int lineIndex = 0){
@@ -306,10 +311,24 @@
 
             UpdateMakersPosition();
 
+            /*
+            float mHeight = 0f;
+
             // OffsetY = GetSepMinY();
+            var m = YmarkerContent.SpawnedGameObjects.FirstOrDefault();
+            if (m!= null){
+                mHeight = m.GetComponent<RectTransform>().rect.height; // / 2;
+            }
+
+            int yMarkerCount = YmarkerContent.SpawnedGameObjects.Count() - 1;
+            float offsetY = ((float)yMarkerCount * mHeight) / 2f;
+            */
 
             for(int i = 0; i < GraphLines.Count; i++){
                 GraphLines[i].Generate();
+
+                // GraphLines[i].SlideGraphVertically(((float)(YmarkerContent.SpawnedGameObjects.Count() - 1) * mHeight) / 2f);
+                GraphLines[i].SlideGraphVertically(GetGraphLineYOffset(GraphLines[i].IsSecondValue)); //offsetY);
             }
             if(GraphLines.Any() && AutoScroll){
                 ScrollToPoint(GraphLines[0].EndPoint);
@@ -437,7 +456,7 @@
             return result;
         }
 
-        private int GetSepCount(){
+        public int GetSepCount(){
             int val1SepCount = GetSepCount(false);
             int result = val1SepCount;
 
@@ -449,8 +468,8 @@
             }
 
             if (FitYAxisToBounderies){
-                yPixelsPerUnit = (viewport.rect.height / result) / yAxisUnitSpan;
-                yPixelsSecondValuePerUnit = (viewport.rect.height / result) / yAxisSecondValueUnitSpan;
+                yPixelsPerUnit = (viewport.rect.height / (float)result) / yAxisUnitSpan;
+                yPixelsSecondValuePerUnit = (viewport.rect.height / (float)result) / yAxisSecondValueUnitSpan;
             }
 
             return result;

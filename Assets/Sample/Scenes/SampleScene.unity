@@ -1534,6 +1534,7 @@ MonoBehaviour:
   yPixelsPerUnit: 5
   yAxisUnitSpan: 10
   yAxisSecondValueUnitSpan: 10
+  GraphLineYOffset: 3
   AutoScroll: 1
   SeperatorThickness: 5
   xAxisLabels: []
