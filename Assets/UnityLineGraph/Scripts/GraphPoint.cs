@@ -66,7 +66,7 @@ public class GraphPoint : MonoBehaviour
         }
     }
 
-    public void Set(string key, float value, Vector2 position, Color color){
+    public void Set(string key, float value, Vector2 position, Color color, bool isMin = false, bool isMax = false){
         SetColor(color);
         m_RectTransform.anchorMin = Vector2.zero;
         m_RectTransform.anchorMax = Vector2.zero;
@@ -74,6 +74,13 @@ public class GraphPoint : MonoBehaviour
         AnchoredPosition = position;
         m_RectTransform.SetAsLastSibling();
         name = string.Format("GraphPoint({0})", value);
+
+        if(isMin){
+            name = name + "[ MIN ]";
+        }else if(isMax){
+            name = name + "[ MAX ]";
+        }
+
         Key = key;
         Value = value;
     }

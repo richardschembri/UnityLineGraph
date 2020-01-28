@@ -196,14 +196,18 @@
             return sepMax;
         }
         */
-        private float GetSepMaxY(bool isSecondValue = false){
+        private float? GetSepMaxY(bool isSecondValue = false){
             return GetSepMaxY(GraphLines.Where(gl => gl.IsSecondValue == isSecondValue).ToList());
         }
-        private float GetSepMaxY(List<GraphLine> graphLines){
+        private float? GetSepMaxY(List<GraphLine> graphLines){
             float sepMax = float.MinValue;
+            var gls = graphLines.Where(gl => gl.GetSepMaxY() != null).ToList();
+            if(!gls.Any()){
+                return null;
+            }
 
-            for (int i = 0; i < graphLines.Count; i++){
-                sepMax = Mathf.Max(sepMax, graphLines[i].GetSepMaxY());
+            for (int i = 0; i < gls.Count; i++){
+                sepMax = Mathf.Max(sepMax, gls[i].GetSepMaxY().Value);
             }
 
             return sepMax;
@@ -258,15 +262,18 @@
             return sepMin;
         }
         */
-        public float GetSepMinY(bool isSecondValue = false){
+        public float? GetSepMinY(bool isSecondValue = false){
             return GetSepMinY(GraphLines.Where(gl => gl.IsSecondValue == isSecondValue).ToList());
         }
-        private float GetSepMinY(List<GraphLine> graphLines){
+        private float? GetSepMinY(List<GraphLine> graphLines){
             float sepMin = float.MaxValue;
-
-            for (int i = 0; i < graphLines.Count; i++){
-                if(graphLines[i].ValueCount > 0){
-                    sepMin = Mathf.Min(sepMin, graphLines[i].GetSepMinY());
+            var gls = graphLines.Where(gl => gl.GetSepMinY() != null).ToList();
+            if(!gls.Any()){
+                return null;
+            }
+            for (int i = 0; i < gls.Count; i++){
+                if(gls[i].ValueCount > 0){
+                    sepMin = Mathf.Min(sepMin, gls[i].GetSepMinY().Value);
                 }
             }
 
@@ -443,12 +450,15 @@
         }
 
         private int GetSepCount(bool isSecondValue){
-            float sepMaxValue = GetSepMaxY(isSecondValue);
-            float sepMinValue = GetSepMinY(isSecondValue);
+            float? sepMaxValue = GetSepMaxY(isSecondValue);
+            float? sepMinValue = GetSepMinY(isSecondValue);
+            if(sepMaxValue == null || sepMinValue == null){
+                return 0;
+            }
 
             int minSepCount = Mathf.CeilToInt(viewport.rect.height / GetyAxisSepHeight(isSecondValue));  
 
-            int result = Mathf.CeilToInt((sepMaxValue - sepMinValue) / GetyAxisUnitSpan(isSecondValue));
+            int result = Mathf.CeilToInt((sepMaxValue.Value - sepMinValue.Value) / GetyAxisUnitSpan(isSecondValue));
             if (!FitYAxisToBounderies){
                 result = Mathf.Max(minSepCount, result);
             }
@@ -467,7 +477,7 @@
                 }
             }
 
-            if (FitYAxisToBounderies){
+            if (result > 0 && FitYAxisToBounderies){
                 yPixelsPerUnit = (viewport.rect.height / (float)result) / yAxisUnitSpan;
                 yPixelsSecondValuePerUnit = (viewport.rect.height / (float)result) / yAxisSecondValueUnitSpan;
             }
@@ -520,8 +530,8 @@
             YmarkerContent.DestroyAllSpawns();
 
 
-            float sepMinY = GetSepMinY();
-            float sepVal2MinY = 0;
+            float? sepMinY = GetSepMinY();
+            float? sepVal2MinY = null;
 
             if(yAxisSecondValueUnitSpan > 0 ){
                 sepVal2MinY = GetSepMinY(true);
@@ -529,13 +539,13 @@
 
             int sepCount = GetSepCount();
 
-            var hasVal1 = GraphLines.Any(gl => gl.IsSecondValue == false && gl.HasValues());
-            var hasVal2 = GraphLines.Any(gl => gl.IsSecondValue == true && gl.HasValues());
+            var hasVal1 = sepMinY != null; // GraphLines.Any(gl => gl.IsSecondValue == false && gl.HasValues());
+            var hasVal2 = sepVal2MinY != null; // GraphLines.Any(gl => gl.IsSecondValue == true && gl.HasValues());
 
             for(int i = 0; i < sepCount; i ++ )
             {
                 //float y = sepMinValue + (i * yAxisUnitSpan);
-                float y = sepMinY + (i * yAxisUnitSpan);
+                float y = sepMinY.Value + (i * yAxisUnitSpan);
                 float? ySecondVal = null;
                 if(yAxisSecondValueUnitSpan > 0 ){
                     ySecondVal = sepVal2MinY + (i * yAxisSecondValueUnitSpan);

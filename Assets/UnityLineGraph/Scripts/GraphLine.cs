@@ -129,9 +129,9 @@
             // var pointY = (plv.Value - parentController.OffsetY)  * parentController.yPixelsPerUnit;
             //var pointY = (plv.Value - parentController.GetSepMinY(IsSecondValue))  * parentController.yPixelsPerUnit;
             var pointY = (plv.Value - parentController.GetSepMinY(IsSecondValue))  * parentController.GetyPixelsPerUnit(IsSecondValue);
-            var pointPosition = new Vector2(pointX, pointY);
+            var pointPosition = new Vector2(pointX, pointY.Value);
 
-            point.Set(plv.Key, plv.Value, pointPosition, m_pointColor);
+            point.Set(plv.Key, plv.Value, pointPosition, m_pointColor, plv.Value == GetMinY(), plv.Value == GetMaxY());
             point.ShowLabel(ShowLabels);
 
             return point;
@@ -232,31 +232,6 @@
 
             return max;
         }
-/*
-        public float GetSepMaxY(){
-            float max = GetMaxY();
-            float sepMax = float.MinValue;
-            int sepCount = (int)(max / parentController.yAxisUnitSpan);
-            while (sepMax < max){
-               sepMax = Mathf.Max(max, sepCount * parentController.yAxisUnitSpan);
-               sepCount++; 
-            }
-
-            return sepMax + parentController.yAxisUnitSpan;
-        }
-*/
-        public float GetSepMaxY(){
-            float max = GetMaxY();
-            float sepMax = float.MinValue;
-            float yAxisUnitSpan = Get_yAxisUnitSpan();
-            int sepCount = (int)(max / yAxisUnitSpan);
-            while (sepMax < max){
-               sepMax = Mathf.Max(max, sepCount * yAxisUnitSpan);
-               sepCount++; 
-            }
-
-            return sepMax + yAxisUnitSpan;
-        }
 
         public float GetMinY(){
             float min = float.MaxValue;
@@ -277,19 +252,6 @@
         public float GetSepMinY(){
             float min = GetMinY();
             float sepMin = float.MaxValue;
-            int sepCount = (int)(min / parentController.yAxisUnitSpan);
-            while (sepMin > min || sepMin % parentController.yAxisUnitSpan != 0){
-               sepMin = Mathf.Min(min, sepCount * parentController.yAxisUnitSpan);
-               sepCount--; 
-            }
-
-            return sepMin - parentController.yAxisUnitSpan;
-        }
-*/
-
-        public float GetSepMinY(){
-            float min = GetMinY();
-            float sepMin = float.MaxValue;
 
             float yAxisUnitSpan = Get_yAxisUnitSpan();
 
@@ -300,6 +262,60 @@
             }
 
             return sepMin - yAxisUnitSpan;
+        }
+*/
+        public float? GetSepMinY(){
+            float result = 0;
+            float min = GetMinY();
+
+            float yAxisUnitSpan = Get_yAxisUnitSpan();
+            if (yAxisUnitSpan == 0){
+                return null;
+            }
+            if(min >= 0){
+                while(min > result){
+                    result += yAxisUnitSpan;
+                }
+            }
+
+            while(min <= result){
+                result -= yAxisUnitSpan;
+            }
+
+            return result - yAxisUnitSpan;
+        }
+/*
+        public float GetSepMaxY(){
+            float max = GetMaxY();
+            float sepMax = float.MinValue;
+            float yAxisUnitSpan = Get_yAxisUnitSpan();
+            int sepCount = (int)(max / yAxisUnitSpan);
+            while (sepMax < max){
+               sepMax = Mathf.Max(max, sepCount * yAxisUnitSpan);
+               sepCount++; 
+            }
+
+            return sepMax + yAxisUnitSpan;
+        }
+*/
+        public float? GetSepMaxY(){
+            float result = 0;
+            float max = GetMaxY();
+            float yAxisUnitSpan = Get_yAxisUnitSpan();
+            if (yAxisUnitSpan == 0){
+                return null;
+            }
+            if(max <= 0){
+                while(max > result){
+                    result -= yAxisUnitSpan;
+                }
+            }
+
+            while(max >= result){
+                result += yAxisUnitSpan;
+            }
+
+            return result + yAxisUnitSpan;
         }
 
         private float Get_yAxisUnitSpan(){
