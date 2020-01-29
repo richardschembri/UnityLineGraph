@@ -64,4 +64,30 @@ public class Marker : MonoBehaviour
             m_SecondValueLabel.gameObject.SetActive(show);
         }
     }
+
+/*
+    public Vector2 GetPosition(bool invertY = false){
+        var rt = GetComponent<RectTransform>();
+        var result = rt.anchoredPosition;
+        if(invertY){
+            var p = transform.parent.GetComponent<RectTransform>();
+            result = new Vector2(result.x, p.rect.height - result.y);
+        }
+
+        return result;
+    }
+*/
+
+    public bool HasLabelText(string labelText){
+        return m_Label.text == labelText;
+    }
+    public string GetLabelText(){
+        return m_Label.text;
+    }
+    public bool HasSecondValueLabelText(string labelText){
+        return m_SecondValueLabel.text == labelText;
+    }
+    public string GetSecondValueLabelText(){
+        return m_SecondValueLabel.text;
+    }
 }

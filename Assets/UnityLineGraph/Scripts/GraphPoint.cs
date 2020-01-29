@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using RSToolkit.Helpers;
 
 [RequireComponent(typeof(Image))]
 public class GraphPoint : MonoBehaviour
@@ -71,9 +72,11 @@ public class GraphPoint : MonoBehaviour
         m_RectTransform.anchorMin = Vector2.zero;
         m_RectTransform.anchorMax = Vector2.zero;
         m_RectTransform.localScale = Vector2.one;
+
+        //m_RectTransform.SetAnchor(RectTransformHelpers.AnchorPresets.MiddleCenter);
         AnchoredPosition = position;
         m_RectTransform.SetAsLastSibling();
-        name = string.Format("GraphPoint({0})", value);
+        name = string.Format("GraphPoint({0}|{1})", key, value);
 
         if(isMin){
             name = name + "[ MIN ]";

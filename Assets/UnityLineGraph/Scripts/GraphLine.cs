@@ -49,7 +49,8 @@
         }
 
         public void SlideGraphVertically(float y){
-            var new_lrtb = new RectTransformHelpers.RectTransformLRTB(default_lrtb.Left, default_lrtb.Right, default_lrtb.Top - y, default_lrtb.Bottom + y);
+            //var new_lrtb = new RectTransformHelpers.RectTransformLRTB(default_lrtb.Left, default_lrtb.Right, default_lrtb.Top - y, default_lrtb.Bottom + y);
+            var new_lrtb = new RectTransformHelpers.RectTransformLRTB(0, 0, -y, y);
             GetComponent<RectTransform>().Set_LRTB(new_lrtb);
         }
 

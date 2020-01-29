@@ -163,9 +163,15 @@
             ///float width = (Settings.xAxisLabels.Count / 2) * Settings.xSize;
             float width = (xAxisLabels.Count + 1) * xPixelsPerUnit;
             int sepCount = YmarkerContent.SpawnedGameObjects.Count;
+            /*
             float height = (yAxisUnitSpan * sepCount * yPixelsPerUnit)
                             - ((yAxisUnitSpan / 4) * yPixelsPerUnit)
                             + SeperatorThickness;
+            */
+            float height = (yAxisUnitSpan * sepCount * yPixelsPerUnit);
+            if(FitYAxisToBounderies){
+                height = viewport.rect.height;
+            }
 
             content.sizeDelta = new Vector2(width, height) + buffer;
             YmarkerContent.GetComponent<RectTransform>().sizeDelta = new Vector2(YmarkerContent.GetComponent<RectTransform>().sizeDelta.x, content.sizeDelta.y);
@@ -449,6 +455,31 @@
             return marker;
         }
 
+        public Marker GetXMarker(float x){
+
+            GameObject result = YmarkerContent.SpawnedGameObjects.Where(m => m.GetComponent<Marker>().HasLabelText(x.ToString())).FirstOrDefault();
+            if(result != null){
+                return result.GetComponent<Marker>();
+            }
+            return null;
+        }
+
+        public Marker GetYMarker(float y, float? ySecondVal){
+
+            GameObject result;
+            if(ySecondVal == null){
+                result = YmarkerContent.SpawnedGameObjects.Where(m => m.GetComponent<Marker>().HasLabelText(y.ToString())).FirstOrDefault();
+            }else{
+                result = YmarkerContent.SpawnedGameObjects.Where(m => m.GetComponent<Marker>().HasLabelText(y.ToString())
+                                                                && m.GetComponent<Marker>().HasSecondValueLabelText(ySecondVal.Value.ToString())
+                                                                ).FirstOrDefault();
+            }
+            if(result != null){
+                return result.GetComponent<Marker>();
+            }
+            return null;
+        }
+
         private int GetSepCount(bool isSecondValue){
             float? sepMaxValue = GetSepMaxY(isSecondValue);
             float? sepMinValue = GetSepMinY(isSecondValue);
@@ -576,6 +607,40 @@
                 //}
             }
         }
+
+/*
+        public float GetYMarkerSpacing(){
+           if(YmarkerContent.SpawnedGameObjects.Any()){
+               return Mathf.Abs(YmarkerContent.SpawnedGameObjects.Last()
+                                .GetComponent<Marker>().GetPosition().y);
+           }
+           return 0f;
+        }
+
+        public float GetYposUsingYMarkers(float yVal, bool isSecondValue = false){
+            for(int i = 0; i < YmarkerContent.SpawnedGameObjects.Count - 1; i = i+2){
+               var m =  YmarkerContent.SpawnedGameObjects[i].GetComponent<Marker>();
+               var m2 =  YmarkerContent.SpawnedGameObjects[i+1].GetComponent<Marker>();
+               float m_val = 0f; 
+               float m2_val = 0f; 
+               if(isSecondValue){
+                   m_val = float.Parse(m.GetSecondValueLabelText());
+                   m2_val = float.Parse(m2.GetSecondValueLabelText());
+               }else{
+                   m_val = float.Parse(m.GetLabelText());
+                   m2_val = float.Parse(m2.GetLabelText());
+               }
+               if(yVal >= m_val && yVal <= m2_val){
+                   var val_pos_y = m.GetPosition(true);
+                   return (yVal * val_pos_y.y) / m_val;
+               }
+            }
+
+            return 0f;
+        }
+*/
+
         #endregion
+
     }
 }
